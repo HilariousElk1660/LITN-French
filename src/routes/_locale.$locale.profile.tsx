@@ -23,12 +23,12 @@ type LibraryEntry = {
   last_opened_on: string | null;
 };
 
-export const Route = createFileRoute("/profile")({
+export const Route = createFileRoute("/_locale/$locale/profile")({
   head: () => ({ meta: [{ title: "Your profile — LITN" }] }),
-  component: Profile,
+  component: ProfilePage,
 });
 
-function Profile() {
+export function ProfilePage() {
   const { user, isAdmin, isSuperAdmin, loading: authLoading, refresh } = useAuth();
 
   const [fullname, setFullname] = useState(user?.fullname ?? "");

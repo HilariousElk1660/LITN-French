@@ -9,243 +9,272 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as HomeRouteImport } from './routes/home'
-import { Route as CatalogueRouteImport } from './routes/catalogue'
-import { Route as AuthorRouteImport } from './routes/author'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as ReadIdRouteImport } from './routes/read.$id'
-import { Route as BookIdRouteImport } from './routes/book.$id'
+import { Route as LocaleLocaleRouteImport } from './routes/_locale.$locale'
+import { Route as LocaleLocaleIndexRouteImport } from './routes/_locale.$locale.index'
+import { Route as LocaleLocaleSignupRouteImport } from './routes/_locale.$locale.signup'
+import { Route as LocaleLocaleProfileRouteImport } from './routes/_locale.$locale.profile'
+import { Route as LocaleLocaleLoginRouteImport } from './routes/_locale.$locale.login'
+import { Route as LocaleLocaleHomeRouteImport } from './routes/_locale.$locale.home'
+import { Route as LocaleLocaleCatalogueRouteImport } from './routes/_locale.$locale.catalogue'
+import { Route as LocaleLocaleAdminRouteImport } from './routes/_locale.$locale.admin'
+import { Route as LocaleLocaleReadIdRouteImport } from './routes/_locale.$locale.read.$id'
+import { Route as LocaleLocaleBookIdRouteImport } from './routes/_locale.$locale.book.$id'
+import { Route as LocaleLocaleAuthorIdRouteImport } from './routes/_locale.$locale.author.$id'
 
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
+const LocaleLocaleRoute = LocaleLocaleRouteImport.update({
+  id: '/_locale/$locale',
+  path: '/$locale',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HomeRoute = HomeRouteImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CatalogueRoute = CatalogueRouteImport.update({
-  id: '/catalogue',
-  path: '/catalogue',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthorRoute = AuthorRouteImport.update({
-  id: '/author',
-  path: '/author',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
+const LocaleLocaleIndexRoute = LocaleLocaleIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => LocaleLocaleRoute,
 } as any)
-const ReadIdRoute = ReadIdRouteImport.update({
+const LocaleLocaleSignupRoute = LocaleLocaleSignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => LocaleLocaleRoute,
+} as any)
+const LocaleLocaleProfileRoute = LocaleLocaleProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => LocaleLocaleRoute,
+} as any)
+const LocaleLocaleLoginRoute = LocaleLocaleLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => LocaleLocaleRoute,
+} as any)
+const LocaleLocaleHomeRoute = LocaleLocaleHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => LocaleLocaleRoute,
+} as any)
+const LocaleLocaleCatalogueRoute = LocaleLocaleCatalogueRouteImport.update({
+  id: '/catalogue',
+  path: '/catalogue',
+  getParentRoute: () => LocaleLocaleRoute,
+} as any)
+const LocaleLocaleAdminRoute = LocaleLocaleAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => LocaleLocaleRoute,
+} as any)
+const LocaleLocaleReadIdRoute = LocaleLocaleReadIdRouteImport.update({
   id: '/read/$id',
   path: '/read/$id',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => LocaleLocaleRoute,
 } as any)
-const BookIdRoute = BookIdRouteImport.update({
+const LocaleLocaleBookIdRoute = LocaleLocaleBookIdRouteImport.update({
   id: '/book/$id',
   path: '/book/$id',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => LocaleLocaleRoute,
+} as any)
+const LocaleLocaleAuthorIdRoute = LocaleLocaleAuthorIdRouteImport.update({
+  id: '/author/$id',
+  path: '/author/$id',
+  getParentRoute: () => LocaleLocaleRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
-  '/author': typeof AuthorRoute
-  '/catalogue': typeof CatalogueRoute
-  '/home': typeof HomeRoute
-  '/login': typeof LoginRoute
-  '/profile': typeof ProfileRoute
-  '/signup': typeof SignupRoute
-  '/book/$id': typeof BookIdRoute
-  '/read/$id': typeof ReadIdRoute
+  '/$locale': typeof LocaleLocaleRouteWithChildren
+  '/$locale/admin': typeof LocaleLocaleAdminRoute
+  '/$locale/catalogue': typeof LocaleLocaleCatalogueRoute
+  '/$locale/home': typeof LocaleLocaleHomeRoute
+  '/$locale/login': typeof LocaleLocaleLoginRoute
+  '/$locale/profile': typeof LocaleLocaleProfileRoute
+  '/$locale/signup': typeof LocaleLocaleSignupRoute
+  '/$locale/': typeof LocaleLocaleIndexRoute
+  '/$locale/author/$id': typeof LocaleLocaleAuthorIdRoute
+  '/$locale/book/$id': typeof LocaleLocaleBookIdRoute
+  '/$locale/read/$id': typeof LocaleLocaleReadIdRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
-  '/author': typeof AuthorRoute
-  '/catalogue': typeof CatalogueRoute
-  '/home': typeof HomeRoute
-  '/login': typeof LoginRoute
-  '/profile': typeof ProfileRoute
-  '/signup': typeof SignupRoute
-  '/book/$id': typeof BookIdRoute
-  '/read/$id': typeof ReadIdRoute
+  '/$locale/admin': typeof LocaleLocaleAdminRoute
+  '/$locale/catalogue': typeof LocaleLocaleCatalogueRoute
+  '/$locale/home': typeof LocaleLocaleHomeRoute
+  '/$locale/login': typeof LocaleLocaleLoginRoute
+  '/$locale/profile': typeof LocaleLocaleProfileRoute
+  '/$locale/signup': typeof LocaleLocaleSignupRoute
+  '/$locale': typeof LocaleLocaleIndexRoute
+  '/$locale/author/$id': typeof LocaleLocaleAuthorIdRoute
+  '/$locale/book/$id': typeof LocaleLocaleBookIdRoute
+  '/$locale/read/$id': typeof LocaleLocaleReadIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
-  '/author': typeof AuthorRoute
-  '/catalogue': typeof CatalogueRoute
-  '/home': typeof HomeRoute
-  '/login': typeof LoginRoute
-  '/profile': typeof ProfileRoute
-  '/signup': typeof SignupRoute
-  '/book/$id': typeof BookIdRoute
-  '/read/$id': typeof ReadIdRoute
+  '/_locale/$locale': typeof LocaleLocaleRouteWithChildren
+  '/_locale/$locale/admin': typeof LocaleLocaleAdminRoute
+  '/_locale/$locale/catalogue': typeof LocaleLocaleCatalogueRoute
+  '/_locale/$locale/home': typeof LocaleLocaleHomeRoute
+  '/_locale/$locale/login': typeof LocaleLocaleLoginRoute
+  '/_locale/$locale/profile': typeof LocaleLocaleProfileRoute
+  '/_locale/$locale/signup': typeof LocaleLocaleSignupRoute
+  '/_locale/$locale/': typeof LocaleLocaleIndexRoute
+  '/_locale/$locale/author/$id': typeof LocaleLocaleAuthorIdRoute
+  '/_locale/$locale/book/$id': typeof LocaleLocaleBookIdRoute
+  '/_locale/$locale/read/$id': typeof LocaleLocaleReadIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
-    | '/admin'
-    | '/author'
-    | '/catalogue'
-    | '/home'
-    | '/login'
-    | '/profile'
-    | '/signup'
-    | '/book/$id'
-    | '/read/$id'
+    | '/$locale'
+    | '/$locale/admin'
+    | '/$locale/catalogue'
+    | '/$locale/home'
+    | '/$locale/login'
+    | '/$locale/profile'
+    | '/$locale/signup'
+    | '/$locale/'
+    | '/$locale/author/$id'
+    | '/$locale/book/$id'
+    | '/$locale/read/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
-    | '/admin'
-    | '/author'
-    | '/catalogue'
-    | '/home'
-    | '/login'
-    | '/profile'
-    | '/signup'
-    | '/book/$id'
-    | '/read/$id'
+    | '/$locale/admin'
+    | '/$locale/catalogue'
+    | '/$locale/home'
+    | '/$locale/login'
+    | '/$locale/profile'
+    | '/$locale/signup'
+    | '/$locale'
+    | '/$locale/author/$id'
+    | '/$locale/book/$id'
+    | '/$locale/read/$id'
   id:
     | '__root__'
-    | '/'
-    | '/admin'
-    | '/author'
-    | '/catalogue'
-    | '/home'
-    | '/login'
-    | '/profile'
-    | '/signup'
-    | '/book/$id'
-    | '/read/$id'
+    | '/_locale/$locale'
+    | '/_locale/$locale/admin'
+    | '/_locale/$locale/catalogue'
+    | '/_locale/$locale/home'
+    | '/_locale/$locale/login'
+    | '/_locale/$locale/profile'
+    | '/_locale/$locale/signup'
+    | '/_locale/$locale/'
+    | '/_locale/$locale/author/$id'
+    | '/_locale/$locale/book/$id'
+    | '/_locale/$locale/read/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
-  AuthorRoute: typeof AuthorRoute
-  CatalogueRoute: typeof CatalogueRoute
-  HomeRoute: typeof HomeRoute
-  LoginRoute: typeof LoginRoute
-  ProfileRoute: typeof ProfileRoute
-  SignupRoute: typeof SignupRoute
-  BookIdRoute: typeof BookIdRoute
-  ReadIdRoute: typeof ReadIdRoute
+  LocaleLocaleRoute: typeof LocaleLocaleRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
+    '/_locale/$locale': {
+      id: '/_locale/$locale'
+      path: '/$locale'
+      fullPath: '/$locale'
+      preLoaderRoute: typeof LocaleLocaleRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/home': {
-      id: '/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof HomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/catalogue': {
-      id: '/catalogue'
-      path: '/catalogue'
-      fullPath: '/catalogue'
-      preLoaderRoute: typeof CatalogueRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/author': {
-      id: '/author'
-      path: '/author'
-      fullPath: '/author'
-      preLoaderRoute: typeof AuthorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
+    '/_locale/$locale/': {
+      id: '/_locale/$locale/'
       path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      fullPath: '/$locale/'
+      preLoaderRoute: typeof LocaleLocaleIndexRouteImport
+      parentRoute: typeof LocaleLocaleRoute
     }
-    '/read/$id': {
-      id: '/read/$id'
+    '/_locale/$locale/signup': {
+      id: '/_locale/$locale/signup'
+      path: '/signup'
+      fullPath: '/$locale/signup'
+      preLoaderRoute: typeof LocaleLocaleSignupRouteImport
+      parentRoute: typeof LocaleLocaleRoute
+    }
+    '/_locale/$locale/profile': {
+      id: '/_locale/$locale/profile'
+      path: '/profile'
+      fullPath: '/$locale/profile'
+      preLoaderRoute: typeof LocaleLocaleProfileRouteImport
+      parentRoute: typeof LocaleLocaleRoute
+    }
+    '/_locale/$locale/login': {
+      id: '/_locale/$locale/login'
+      path: '/login'
+      fullPath: '/$locale/login'
+      preLoaderRoute: typeof LocaleLocaleLoginRouteImport
+      parentRoute: typeof LocaleLocaleRoute
+    }
+    '/_locale/$locale/home': {
+      id: '/_locale/$locale/home'
+      path: '/home'
+      fullPath: '/$locale/home'
+      preLoaderRoute: typeof LocaleLocaleHomeRouteImport
+      parentRoute: typeof LocaleLocaleRoute
+    }
+    '/_locale/$locale/catalogue': {
+      id: '/_locale/$locale/catalogue'
+      path: '/catalogue'
+      fullPath: '/$locale/catalogue'
+      preLoaderRoute: typeof LocaleLocaleCatalogueRouteImport
+      parentRoute: typeof LocaleLocaleRoute
+    }
+    '/_locale/$locale/admin': {
+      id: '/_locale/$locale/admin'
+      path: '/admin'
+      fullPath: '/$locale/admin'
+      preLoaderRoute: typeof LocaleLocaleAdminRouteImport
+      parentRoute: typeof LocaleLocaleRoute
+    }
+    '/_locale/$locale/read/$id': {
+      id: '/_locale/$locale/read/$id'
       path: '/read/$id'
-      fullPath: '/read/$id'
-      preLoaderRoute: typeof ReadIdRouteImport
-      parentRoute: typeof rootRouteImport
+      fullPath: '/$locale/read/$id'
+      preLoaderRoute: typeof LocaleLocaleReadIdRouteImport
+      parentRoute: typeof LocaleLocaleRoute
     }
-    '/book/$id': {
-      id: '/book/$id'
+    '/_locale/$locale/book/$id': {
+      id: '/_locale/$locale/book/$id'
       path: '/book/$id'
-      fullPath: '/book/$id'
-      preLoaderRoute: typeof BookIdRouteImport
-      parentRoute: typeof rootRouteImport
+      fullPath: '/$locale/book/$id'
+      preLoaderRoute: typeof LocaleLocaleBookIdRouteImport
+      parentRoute: typeof LocaleLocaleRoute
+    }
+    '/_locale/$locale/author/$id': {
+      id: '/_locale/$locale/author/$id'
+      path: '/author/$id'
+      fullPath: '/$locale/author/$id'
+      preLoaderRoute: typeof LocaleLocaleAuthorIdRouteImport
+      parentRoute: typeof LocaleLocaleRoute
     }
   }
 }
 
+interface LocaleLocaleRouteChildren {
+  LocaleLocaleAdminRoute: typeof LocaleLocaleAdminRoute
+  LocaleLocaleCatalogueRoute: typeof LocaleLocaleCatalogueRoute
+  LocaleLocaleHomeRoute: typeof LocaleLocaleHomeRoute
+  LocaleLocaleLoginRoute: typeof LocaleLocaleLoginRoute
+  LocaleLocaleProfileRoute: typeof LocaleLocaleProfileRoute
+  LocaleLocaleSignupRoute: typeof LocaleLocaleSignupRoute
+  LocaleLocaleIndexRoute: typeof LocaleLocaleIndexRoute
+  LocaleLocaleAuthorIdRoute: typeof LocaleLocaleAuthorIdRoute
+  LocaleLocaleBookIdRoute: typeof LocaleLocaleBookIdRoute
+  LocaleLocaleReadIdRoute: typeof LocaleLocaleReadIdRoute
+}
+
+const LocaleLocaleRouteChildren: LocaleLocaleRouteChildren = {
+  LocaleLocaleAdminRoute: LocaleLocaleAdminRoute,
+  LocaleLocaleCatalogueRoute: LocaleLocaleCatalogueRoute,
+  LocaleLocaleHomeRoute: LocaleLocaleHomeRoute,
+  LocaleLocaleLoginRoute: LocaleLocaleLoginRoute,
+  LocaleLocaleProfileRoute: LocaleLocaleProfileRoute,
+  LocaleLocaleSignupRoute: LocaleLocaleSignupRoute,
+  LocaleLocaleIndexRoute: LocaleLocaleIndexRoute,
+  LocaleLocaleAuthorIdRoute: LocaleLocaleAuthorIdRoute,
+  LocaleLocaleBookIdRoute: LocaleLocaleBookIdRoute,
+  LocaleLocaleReadIdRoute: LocaleLocaleReadIdRoute,
+}
+
+const LocaleLocaleRouteWithChildren = LocaleLocaleRoute._addFileChildren(
+  LocaleLocaleRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
-  AuthorRoute: AuthorRoute,
-  CatalogueRoute: CatalogueRoute,
-  HomeRoute: HomeRoute,
-  LoginRoute: LoginRoute,
-  ProfileRoute: ProfileRoute,
-  SignupRoute: SignupRoute,
-  BookIdRoute: BookIdRoute,
-  ReadIdRoute: ReadIdRoute,
+  LocaleLocaleRoute: LocaleLocaleRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

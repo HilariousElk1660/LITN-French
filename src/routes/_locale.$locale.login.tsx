@@ -1,18 +1,23 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useNavigate, useLocation } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
+import { LocaleLink } from "@/components/locale-link";
 import { api, type AuthResponse } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
+import { getLocaleFromPath, getTranslations, withLocalePath } from "@/lib/i18n";
 
-export const Route = createFileRoute("/login")({
+export const Route = createFileRoute("/_locale/$locale/login")({
   head: () => ({ meta: [{ title: "Sign in — LITN" }] }),
-  component: Login,
+  component: LoginPage,
 });
 
-function Login() {
+export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const locale = getLocaleFromPath(location.pathname);
   const { refresh } = useAuth();
+  const [translations, setTranslations] = useState<Record<string, string>>({});
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,7 +30,7 @@ function Login() {
       api.saveSession(auth);
       refresh();
       toast.success("Welcome back.");
-      navigate({ to: "/" });
+      navigate({ to: withLocalePath("/", locale) });
     } catch (err: any) {
       toast.error(err.message);
     } finally {
@@ -37,9 +42,9 @@ function Login() {
     <div className="min-h-screen">
       <SiteHeader />
       <div className="mx-auto max-w-md px-4 py-16 sm:px-6 sm:py-20">
-        <h1 className="font-display text-3xl sm:text-4xl">Welcome back.</h1>
+        <h1 className="font-display text-3xl sm:text-4xl">{translations["common.loginHeading"] ?? "Welcome back."}</h1>
         <p className="mt-2 text-muted-foreground">
-          Sign in to pick up where you left off.
+          {translations["common.loginSubtitle"] ?? "Sign in to pick up where you left off."}
         </p>
         <form className="mt-10 space-y-4" onSubmit={onSubmit}>
           <input
@@ -64,14 +69,14 @@ function Login() {
             disabled={loading}
             className="w-full rounded-full bg-gradient-teal px-5 py-3 text-sm font-semibold text-primary-foreground shadow-glow disabled:opacity-60"
           >
-            {loading ? "Signing in…" : "Sign in"}
+            {loading ? translations["common.signingIn"] ?? "Signing in…" : translations["common.signIn"] ?? "Sign in"}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          New to LITN?{" "}
-          <Link to="/signup" className="text-teal-bright hover:underline">
-            Create an account
-          </Link>
+          {translations["common.newToLITN"] ?? "New to LITN?"}{" "}
+          <LocaleLink to="/signup" className="text-teal-bright hover:underline">
+            {translations["common.createAccountLink"] ?? "Create an account"}
+          </LocaleLink>
         </p>
       </div>
     </div>

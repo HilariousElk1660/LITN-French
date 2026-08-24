@@ -1,15 +1,76 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation, useRouter } from "@tanstack/react-router";
 import logo from "@/assets/logo1.png";
 import { useAuth } from "@/hooks/use-auth";
 import { Shield, Crown, ChevronDown, LogOut, User, Menu, X } from "lucide-react";
+import {
+  DEFAULT_LOCALE,
+  SUPPORTED_LOCALES,
+  getLocaleFromPath,
+  getTranslations,
+  setStoredLocale,
+  withLocalePath,
+} from "@/lib/i18n";
+
+function LanguageSwitcher() {
+  const router = useRouter();
+  const location = useLocation();
+  const currentLocale = getLocaleFromPath(location.pathname);
+
+  const handleChange = (locale: string) => {
+    const next = withLocalePath(location.pathname, locale as (typeof SUPPORTED_LOCALES)[number]);
+    setStoredLocale(locale as (typeof SUPPORTED_LOCALES)[number]);
+    router.navigate({ to: next, replace: true });
+  };
+
+  return (
+    <label className="flex items-center gap-2 rounded-full border border-border/60 bg-background/60 px-3 py-1.5 text-xs text-muted-foreground">
+      <span className="sr-only">Language</span>
+      <select
+        value={currentLocale}
+        onChange={(event) => handleChange(event.target.value)}
+        className="bg-transparent text-sm text-foreground outline-none"
+        aria-label="Language"
+      >
+        {SUPPORTED_LOCALES.map((locale) => (
+          <option key={locale} value={locale}>
+            {locale.toUpperCase()}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
 
 export function SiteHeader() {
   const { user, isAdmin, isSuperAdmin, signOut, loading } = useAuth();
+  const location = useLocation();
+  const locale = getLocaleFromPath(location.pathname);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [translations, setTranslations] = useState<Record<string, string>>({});
   const menuRef = useRef<HTMLDivElement>(null);
   const mobileNavRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let active = true;
+    getTranslations(locale).then((dictionary) => {
+      if (active) {
+        const flat: Record<string, string> = {};
+        Object.entries(dictionary).forEach(([key, value]) => {
+          if (value && typeof value === "object") {
+            Object.entries(value as Record<string, unknown>).forEach(([nestedKey, nestedValue]) => {
+              if (typeof nestedValue === "string") flat[`${key}.${nestedKey}`] = nestedValue;
+            });
+          }
+        });
+        setTranslations(flat);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [locale]);
 
   const initials = (user?.fullname || user?.email || "?")
     .split(" ")
@@ -50,20 +111,21 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-          <Link to="/" className="transition-colors hover:text-foreground" activeOptions={{ exact: true }} activeProps={{ className: "text-foreground" }}>
-            Home
+          <Link to={withLocalePath("/", locale)} className="transition-colors hover:text-foreground" activeOptions={{ exact: true }} activeProps={{ className: "text-foreground" }}>
+            {translations["common.home"] ?? "Home"}
           </Link>
-          <Link to="/catalogue" className="transition-colors hover:text-foreground" activeProps={{ className: "text-foreground" }}>
-            Catalogue
+          <Link to={withLocalePath("/catalogue", locale)} className="transition-colors hover:text-foreground" activeProps={{ className: "text-foreground" }}>
+            {translations["common.catalogue"] ?? "Catalogue"}
           </Link>
           {isAdmin && (
-            <Link to="/admin" className="text-teal-bright transition-colors hover:text-foreground" activeProps={{ className: "text-foreground" }}>
-              Admin
+            <Link to={withLocalePath("/admin", locale)} className="text-teal-bright transition-colors hover:text-foreground" activeProps={{ className: "text-foreground" }}>
+              {translations["common.admin"] ?? "Admin"}
             </Link>
           )}
         </nav>
 
         <div className="relative ml-auto flex items-center gap-2" ref={mobileNavRef}>
+          <LanguageSwitcher />
           {loading ? null : user ? (
             <>
               {/* {isSuperAdmin ? (
@@ -122,7 +184,7 @@ export function SiteHeader() {
                           className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
                         >
                           <Shield className="h-4 w-4" />
-                          Admin
+                          {translations["common.admin"] ?? "Admin"}
                         </Link>
                       )}
                     </div>
@@ -136,7 +198,7 @@ export function SiteHeader() {
                         className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
                       >
                         <LogOut className="h-4 w-4" />
-                        Sign out
+                        {translations["common.logout"] ?? "Sign out"}
                       </button>
                     </div>
                   </div>
@@ -182,14 +244,14 @@ export function SiteHeader() {
                   onClick={() => setMobileNavOpen(false)}
                   className="px-4 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
                 >
-                  Home
+                  {translations["common.home"] ?? "Home"}
                 </Link>
                 <Link
                   to="/catalogue"
                   onClick={() => setMobileNavOpen(false)}
                   className="px-4 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
                 >
-                  Catalogue
+                  {translations["common.catalogue"] ?? "Catalogue"}
                 </Link>
                 {isAdmin && (
                   <Link
@@ -207,7 +269,7 @@ export function SiteHeader() {
                       onClick={() => setMobileNavOpen(false)}
                       className="px-4 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
                     >
-                      Profile
+                      {translations["common.viewProfile"] ?? "Profile"}
                     </Link>
                     <button
                       type="button"
@@ -218,7 +280,7 @@ export function SiteHeader() {
                       className="flex items-center gap-2 px-4 py-2 text-left text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
                     >
                       <LogOut className="h-4 w-4" />
-                      Sign out
+                      {translations["common.logout"] ?? "Sign out"}
                     </button>
                   </>
                 ) : (
@@ -228,14 +290,14 @@ export function SiteHeader() {
                       onClick={() => setMobileNavOpen(false)}
                       className="px-4 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
                     >
-                      Sign in
+                      {translations["common.signIn"] ?? "Sign in"}
                     </Link>
                     <Link
                       to="/signup"
                       onClick={() => setMobileNavOpen(false)}
                       className="px-4 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
                     >
-                      Sign up
+                      {translations["common.signUp"] ?? "Sign up"}
                     </Link>
                   </>
                 )}

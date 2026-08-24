@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import PdfViewer from "@/components/pdf-viewer";
 import { ArrowLeft } from "lucide-react";
 
-export const Route = createFileRoute("/read/$id")({
+export const Route = createFileRoute("/_locale/$locale/read/$id")({
   ssr: false,
   loader: ({ params }) => {
    return true
@@ -28,7 +28,6 @@ function BackButton({ bookId }: { bookId: string }) {
     if (canGoBack) {
       router.history.back();
     } else {
-      // No history to go back to (e.g. opened via direct link) — fall back to the book page
       router.navigate({ to: "/book/$id", params: { id: bookId } });
     }
   };

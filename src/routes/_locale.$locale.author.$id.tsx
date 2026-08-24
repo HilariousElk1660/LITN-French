@@ -4,7 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { BookCard } from "@/components/book-card";
 import { books } from "@/lib/books";
 
-export const Route = createFileRoute("/author")({
+export const Route = createFileRoute("/_locale/$locale/author/$id")({
   loader: ({ params }) => {
     const author = books.find((b) => b.authorId === params.id);
     if (!author) throw notFound();
@@ -45,10 +45,8 @@ function AuthorPage() {
             {works.map((b: typeof works[number]) => <BookCard key={b.id} book={b} />)}
           </div>
         </div>
-
       </div>
       <SiteFooter />
     </div>
   );
 }
-

@@ -3,9 +3,11 @@ import {
   Outlet,
   Link,
   createRootRouteWithContext,
+  useLocation,
   useRouter,
   HeadContent,
   Scripts,
+  redirect,
 } from "@tanstack/react-router";
 import favicon from "@/assets/favicon.ico";
 import { useEffect, type ReactNode } from "react";
@@ -15,6 +17,14 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "../hooks/use-auth";
 import { BooksProvider } from "@/hooks/use-books";
 import { Toaster } from "../components/ui/sonner";
+import {
+  DEFAULT_LOCALE,
+  SUPPORTED_LOCALES,
+  getLocaleFromPath,
+  resolvePreferredLocale,
+  stripLocaleFromPath,
+  withLocalePath,
+} from "@/lib/i18n";
 
 function NotFoundComponent() {
   return (
@@ -76,33 +86,84 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+function getCanonicalOrigin() {
+  if (typeof window !== "undefined") return window.location.origin;
+  return "https://website.com";
+}
+
+function getLocaleRedirectTarget(pathname: string) {
+  const trimmed = pathname === "/" ? "/" : pathname.replace(/\/+$/, "") || "/";
+  const segments = trimmed.split("/").filter(Boolean);
+
+  if (segments.length === 0) {
+    return withLocalePath("/", resolvePreferredLocale());
+  }
+
+  const first = segments[0];
+  if (SUPPORTED_LOCALES.includes(first as (typeof SUPPORTED_LOCALES)[number])) {
+    const locale = getLocaleFromPath(trimmed);
+    const canonical = withLocalePath(stripLocaleFromPath(trimmed), locale);
+    return canonical === trimmed ? null : canonical;
+  }
+
+  return withLocalePath(trimmed, resolvePreferredLocale());
+}
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "LITN — Read together. Meet the authors." },
-      {
-        name: "description",
-        content:
-          "Community-first reading platform with serialised chapters, book rooms, and direct access to authors.",
-      },
-      { property: "og:title", content: "LITN" },
-      { property: "og:description", content: "Read together. Meet the authors." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: favicon, type: "image/x-icon" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap",
-      },
-    ],
-  }),
+  beforeLoad: ({ location }) => {
+    const redirectTarget = getLocaleRedirectTarget(location.pathname);
+    if (redirectTarget && redirectTarget !== location.pathname) {
+      throw redirect({ to: redirectTarget, replace: true });
+    }
+
+    const locale = getLocaleFromPath(location.pathname);
+    const canonicalPath = stripLocaleFromPath(location.pathname) || "/";
+
+    // Expose what `head` needs, since `head` doesn't receive `location` itself.
+    return {
+      locale,
+      canonicalPath,
+    };
+  },
+  head: ({ match }) => {
+    const { locale, canonicalPath } = match.context;
+    const origin = getCanonicalOrigin();
+    const canonicalHref = `${origin}${withLocalePath(canonicalPath, locale)}`;
+
+    return {
+      meta: [
+        { charSet: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { title: "LITN — Read together. Meet the authors." },
+        {
+          name: "description",
+          content:
+            "Community-first reading platform with serialised chapters, book rooms, and direct access to authors.",
+        },
+        { property: "og:title", content: "LITN" },
+        { property: "og:description", content: "Read together. Meet the authors." },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+      links: [
+        { rel: "stylesheet", href: appCss },
+        { rel: "icon", href: favicon, type: "image/x-icon" },
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap",
+        },
+        ...SUPPORTED_LOCALES.map((supportedLocale) => ({
+          rel: "alternate",
+          hrefLang: supportedLocale,
+          href: `${origin}${withLocalePath(canonicalPath, supportedLocale)}`,
+        })),
+        { rel: "alternate", hrefLang: "x-default", href: `${origin}${withLocalePath(canonicalPath, DEFAULT_LOCALE)}` },
+        { rel: "canonical", href: canonicalHref },
+      ],
+    };
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -110,8 +171,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const location = useLocation();
+  const locale = getLocaleFromPath(location.pathname);
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <head>
         <HeadContent />
       </head>
@@ -128,11 +192,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider> 
+      <AuthProvider>
         <BooksProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-        <Toaster />
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          <Toaster />
         </BooksProvider>
       </AuthProvider>
     </QueryClientProvider>

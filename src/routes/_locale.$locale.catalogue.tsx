@@ -1,12 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { BookCard } from "@/components/book-card";
+import { LocaleLink } from "@/components/locale-link";
 import { genres, type Book } from "@/lib/books";
 import { useAuth } from "@/hooks/use-auth";
 
-export const Route = createFileRoute("/catalogue")({
+export const Route = createFileRoute("/_locale/$locale/catalogue")({
   validateSearch: (s: Record<string, unknown>) => ({ q: (s.q as string) ?? "" }),
   head: () => ({
     meta: [
@@ -14,10 +15,10 @@ export const Route = createFileRoute("/catalogue")({
       { name: "description", content: "Browse the full LITN medical-training library — anatomy, pharmacology, emergency medicine, cardiology, surgery and internal medicine." },
     ],
   }),
-  component: Catalogue,
+  component: CataloguePage,
 });
 
-function Catalogue() {
+export function CataloguePage() {
   const { q: initialQ } = Route.useSearch();
   const { user, loading, backendUrl } = useAuth();
   const [books, setBooks] = useState<Book[]>([]);
@@ -92,12 +93,12 @@ function Catalogue() {
             The full LITN medical-training library is available to signed-in members. Create a free account or sign in to browse every title.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link to="/login" className="rounded-full bg-gradient-teal px-6 py-3 text-sm font-medium text-primary-foreground shadow-glow">
+            <LocaleLink to="/login" className="rounded-full bg-gradient-teal px-6 py-3 text-sm font-medium text-primary-foreground shadow-glow">
               Sign in
-            </Link>
-            <Link to="/signup" className="rounded-full border border-border bg-surface px-6 py-3 text-sm font-medium text-foreground">
+            </LocaleLink>
+            <LocaleLink to="/signup" className="rounded-full border border-border bg-surface px-6 py-3 text-sm font-medium text-foreground">
               Create account
-            </Link>
+            </LocaleLink>
           </div>
         </div>
         <SiteFooter />

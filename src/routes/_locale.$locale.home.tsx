@@ -5,10 +5,11 @@ import { SiteFooter } from "@/components/site-footer";
 import { useAuth } from "@/hooks/use-auth";
 import { useBooks } from "@/hooks/use-books";
 import { BookCard } from "@/components/book-card";
+import { LocaleLink } from "@/components/locale-link";
 import { genres, type Book } from "@/lib/books";
 import { BookOpen, GraduationCap, ArrowRight, Sparkles, Compass, Clock } from "lucide-react";
 
-export const Route = createFileRoute("/home")({
+export const Route = createFileRoute("/_locale/$locale/home")({
   head: () => ({
     meta: [
       { title: "Home Dashboard — LITN" },
@@ -92,12 +93,12 @@ function Home() {
             Please sign in to view your learning dashboard, reading progress, and registered titles.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link to="/login" className="rounded-full bg-gradient-teal px-6 py-3 text-sm font-medium text-primary-foreground shadow-glow">
+            <LocaleLink to="/login" className="rounded-full bg-gradient-teal px-6 py-3 text-sm font-medium text-primary-foreground shadow-glow">
               Sign in
-            </Link>
-            <Link to="/signup" className="rounded-full border border-border bg-surface px-6 py-3 text-sm font-medium text-foreground">
+            </LocaleLink>
+            <LocaleLink to="/signup" className="rounded-full border border-border bg-surface px-6 py-3 text-sm font-medium text-foreground">
               Create account
-            </Link>
+            </LocaleLink>
           </div>
         </div>
         <SiteFooter />
@@ -131,18 +132,18 @@ function Home() {
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Link
+              <LocaleLink
                 to="/catalogue"
                 className="inline-flex items-center gap-2 rounded-full bg-gradient-teal px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-glow transition hover:opacity-90"
               >
                 <Compass className="h-4 w-4" /> Browse Library
-              </Link>
-              <Link
+              </LocaleLink>
+              <LocaleLink
                 to="/profile"
                 className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-surface"
               >
                 View Profile <ArrowRight className="h-4 w-4" />
-              </Link>
+              </LocaleLink>
             </div>
           </div>
         </section>
@@ -201,15 +202,15 @@ function Home() {
             {((readersBooks as LibraryEntry[]) ?? []).length === 0 ? (
               <div className="col-span-full rounded-2xl border border-dashed border-border/60 p-8 text-center bg-surface/30">
                 <p className="text-sm text-muted-foreground">You don't have any books in progress.</p>
-                <Link to="/catalogue" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-teal-bright hover:underline">
+                <LocaleLink to="/catalogue" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-teal-bright hover:underline">
                   Browse library <ArrowRight className="h-4 w-4" />
-                </Link>
+                </LocaleLink>
               </div>
             ) : (
               ((readersBooks as LibraryEntry[]) ?? []).slice(0, 5).map((b) => {
                 const pct = b.percentage_completed ?? 0;
                 return (
-                  <Link
+                  <LocaleLink
                     key={b.reader_book_id}
                     to="/read/$id"
                     params={{ id: b.book_id }}
@@ -254,7 +255,7 @@ function Home() {
                         </div>
                       </div>
                     </div>
-                  </Link>
+                  </LocaleLink>
                 );
               })
             )}
@@ -268,9 +269,9 @@ function Home() {
               <h2 className="font-display text-2xl sm:text-3xl">Featured Clinical Studies</h2>
               <p className="text-sm text-muted-foreground">Highly recommended anatomy, pharmacology, and clinical training titles.</p>
             </div>
-            <Link to="/catalogue" className="text-teal-bright hover:underline text-sm font-medium inline-flex items-center gap-1">
+            <LocaleLink to="/catalogue" className="text-teal-bright hover:underline text-sm font-medium inline-flex items-center gap-1">
               View all <ArrowRight className="h-4 w-4" />
-            </Link>
+            </LocaleLink>
           </div>
 
           {loadingBooks ? (
