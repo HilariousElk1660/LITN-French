@@ -1,0 +1,1426 @@
+
+          <!DOCTYPE html>
+    <html>
+     <head>
+      <meta charset="utf-8"/>
+     </head>
+     <style>
+  
+     </style>
+     <body>
+      <img/>
+      <p>
+       Edited by
+      </p>
+      <p>
+       <b>
+        W G J KLOECK
+       </b>
+      </p>
+      <p>
+       <b>
+        Division of Emergency Medicine
+        <br/>
+        University of the Witwatersrand
+       </b>
+      </p>
+      <p>
+       <b>
+        ELEVENTH EDITION
+        <br/>
+        2017
+       </b>
+      </p>
+      <h1>
+       <b>
+        A GUIDE TO THE MANAGEMENT OF COMMON  MEDICAL EMERGENCIES IN ADULTS
+       </b>
+      </h1>
+      <p block-type="Text">
+       Edited by
+      </p>
+      <p block-type="Text">
+       <b>
+        PROFESSOR WALTER G J. KLOECK
+       </b>
+      </p>
+      <p block-type="Text">
+       <i>
+        MB, BCh(Witwatersrand), DipPEC(SA), FCEM(SA), FERC(Belg), FAHA(USA)
+       </i>
+       Hon Adjunct Professor, Division of Emergency Medicine Faculty of Health Sciences University of the  Witwatersrand
+      </p>
+      <p block-type="Text">
+       and
+      </p>
+      <p block-type="Text">
+       Past-President, College of Emergency Medicine of South Africa Honorary Life President, Resuscitation  Council of Southern Africa
+      </p>
+      <h2>
+       <b>
+        ELEVENTH EDITION 2017
+       </b>
+      </h2>
+      <h3>
+       <i>
+        Contributors (11th Edition)
+       </i>
+      </h3>
+      <p block-type="Text">
+       S Alekar, N Ariefdien, L Brannigan, D Cloete, A Engelbrecht, A Karstaedt, D Kloeck, F Lamond, A  Mahomed, P Manga, A Mochan, A Nosworthy, G Paget, M Patel, F Raal, G Richards, M Toubkin, C van Loggerenberg, A Ward
+      </p>
+      <h3>
+       <i>
+        Authorities Consulted (Previous Editions)
+       </i>
+      </h3>
+      <p block-type="Text">
+       P Allen, C All wood, R Ally, C Balfour, S Bhagwanjee, R Blaylock, L Blumberg,
+      </p>
+      <p block-type="Text">
+       M Botha, T Bothwell, D Brittain, A Capelluto, P Catzel, M Connor, F Dateling, F De Villiers,
+      </p>
+      <p block-type="Text">
+       A Dubb, A Duse, C Feldman, V Fritz, K Furman, M Grobusch, G Hart, K Huddle, P Ive, B Joffe, W Kalk, J  Kallenbach, M Kew, L Koopowitz, E Kramer, A Laher, A MacPhail, J Maliakel, L Margolius, M Mer, A Meyers, F Milne, G Modi, D Morrell, S Naicker, I Obel, J Oettle, S Omar, L
+      </p>
+      <blockquote>
+       <p block-type="Text">
+        Pantanowitz, D Paolini, V Roets, P Ruff, F Sahid, P Sareli, I Segal, R Shires, L Smit, M Steward, J Temlett, C Van der Merwe, C van Straten, Y Veriava, J Wing, S Zwi.
+       </p>
+      </blockquote>
+      <p block-type="Text">
+       PREFACE TO ELEVENTH EDITION The editor would like to thank all those who contributed valuable  and useful suggestions towards this 11th edition. A number of chapters have been revised and updated, and  several new sections have been added. Additional suggestions and comments are welcomed, and should be  sent to
+      </p>
+      <h4>
+       <a href="mailto:kloeck@iafrica.com">
+        kloeck@iafrica.com.
+       </a>
+      </h4>
+      <p block-type="Text">
+       It is our hope that this booklet will serve as a useful guide for the initial management of the emergency  situation
+      </p>
+      <h4>
+       DISCLAIMER
+      </h4>
+      <p block-type="Text">
+       The Authors and Editor have exerted every effort to ensure that the clinical procedures and recommendations described herein are based on current knowledge and state-of-the-art information obtained from  acknowledged authorities, texts and journals. However, they cannot be considered absolute and universal  recommendations. Each patient situation must be considered individually. The reader is urged to check the  package inserts of drugs and equipment and the manufacturer's recommendations for indications,  contraindications, proper usage, warnings and precautions before use. The Authors and Editor disclaim  responsibility for any adverse effects resulting directly or indirectly from information presented in this  booklet, undetected errors or misunderstandings by the readers.
+      </p>
+      <p block-type="Text">
+       <b>
+        ISBN 978-0-620-73550-6
+       </b>
+      </p>
+      <h2>
+       <b>
+        CONTENTS
+       </b>
+      </h2>
+      <table>
+       <thead>
+        <tr>
+         <th>
+         </th>
+         <th>
+          SECTION 1: CARDIO RESPIRATORY EMERGENCIES
+         </th>
+         <th>
+          PAGE
+         </th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td>
+          1.1
+         </td>
+         <td>
+          Cardiac Arrest...........................................................................................................................................................
+         </td>
+         <td>
+          4
+         </td>
+        </tr>
+        <tr>
+         <td>
+          1.2
+         </td>
+         <td>
+          Acute Laryngeal or Tracheal Obstruction........................................................................................................
+         </td>
+         <td>
+          12
+         </td>
+        </tr>
+        <tr>
+         <td>
+          1.3
+         </td>
+         <td>
+          Near Drowning......................................................................................................................................................
+         </td>
+         <td>
+          15
+         </td>
+        </tr>
+        <tr>
+         <td>
+          1.4
+         </td>
+         <td>
+          Acute Coronary Syndromes................................................................................................................................
+         </td>
+         <td>
+          16
+         </td>
+        </tr>
+        <tr>
+         <td>
+          1.5
+         </td>
+         <td>
+          Cardiac Dysrhythmias..........................................................................................................................................
+         </td>
+         <td>
+          20
+         </td>
+        </tr>
+        <tr>
+         <td>
+          1.6
+         </td>
+         <td>
+          Acute Heart Failure...............................................................................................................................................
+         </td>
+         <td>
+          33
+         </td>
+        </tr>
+        <tr>
+         <td>
+          1.7
+         </td>
+         <td>
+          Shock ......................................................................................................................................................................
+         </td>
+         <td>
+          37
+         </td>
+        </tr>
+        <tr>
+         <td>
+          1.8
+         </td>
+         <td>
+          Cardiogenic Shock................................................................................................................................................
+         </td>
+         <td>
+          38
+         </td>
+        </tr>
+        <tr>
+         <td>
+          1.9
+         </td>
+         <td>
+          Acute Anaphylaxis................................................................................................................................................
+         </td>
+         <td>
+          40
+         </td>
+        </tr>
+        <tr>
+         <td>
+          1.10
+         </td>
+         <td>
+          Sepsis and SIRS.....................................................................................................................................................
+         </td>
+         <td>
+          45
+         </td>
+        </tr>
+        <tr>
+         <td>
+          1.11
+         </td>
+         <td>
+          Acute Pulmonary Embolism...............................................................................................................................
+         </td>
+         <td>
+          47
+         </td>
+        </tr>
+        <tr>
+         <td>
+          1.12
+         </td>
+         <td>
+          Acute Asthma ...................................................................................................................................................... 50
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          1.13
+         </td>
+         <td>
+          Pneumothorax........................................................................................................................................................
+         </td>
+         <td>
+          51
+         </td>
+        </tr>
+        <tr>
+         <td>
+          1.14
+         </td>
+         <td>
+          Haemoptysis ..........................................................................................................................................................
+         </td>
+         <td>
+          52
+         </td>
+        </tr>
+        <tr>
+         <td>
+          1.15
+         </td>
+         <td>
+          Community-Acquired Pneumonia.....................................................................................................................
+         </td>
+         <td>
+          52
+         </td>
+        </tr>
+        <tr>
+         <td>
+          SECTION 2:
+         </td>
+         <td>
+          HYPERTENSIVE URGENCIES &amp; EMERGENCIES
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          2.1
+         </td>
+         <td>
+          Severe Hypertension.............................................................................................................................................
+         </td>
+         <td>
+          54
+         </td>
+        </tr>
+        <tr>
+         <td>
+          2.2
+         </td>
+         <td>
+          Hypertensive Urgency..........................................................................................................................................
+         </td>
+         <td>
+          54
+         </td>
+        </tr>
+        <tr>
+         <td>
+          2.3
+         </td>
+         <td>
+          Hypertensive Emergency
+         </td>
+         <td>
+          55
+         </td>
+        </tr>
+        <tr>
+         <td>
+          2.4
+         </td>
+         <td>
+          Hypertensive in Pregnancy
+         </td>
+         <td>
+          56
+         </td>
+        </tr>
+        <tr>
+         <td>
+          SECTION 3:
+         </td>
+         <td>
+          EMERGENCY DIALYSIS
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          3.1
+         </td>
+         <td>
+          Intrinsic Acute Kidney Injury.............................................................................................................................
+         </td>
+         <td>
+          57
+         </td>
+        </tr>
+        <tr>
+         <td>
+          3.2
+         </td>
+         <td>
+          Chronic Kidney Disease......................................................................................................................................
+         </td>
+         <td>
+          57
+         </td>
+        </tr>
+        <tr>
+         <td>
+          3.3
+         </td>
+         <td>
+          Acute Hepatic Failure...........................................................................................................................................
+         </td>
+         <td>
+          57
+         </td>
+        </tr>
+        <tr>
+         <td>
+          3.4
+         </td>
+         <td>
+          Poisons ...................................................................................................................................................................
+         </td>
+         <td>
+          58
+         </td>
+        </tr>
+        <tr>
+         <td>
+          SECTION 4:
+         </td>
+         <td>
+          METABOLIC EMERGENCIES
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          4.1
+         </td>
+         <td>
+          Hyperkalaemia.......................................................................................................................................................
+         </td>
+         <td>
+          59
+         </td>
+        </tr>
+        <tr>
+         <td>
+          4.2
+         </td>
+         <td>
+          Hypokalaemia........................................................................................................................................................
+         </td>
+         <td>
+          61
+         </td>
+        </tr>
+        <tr>
+         <td>
+          4.3
+         </td>
+         <td>
+          Hypematraemia
+         </td>
+         <td>
+          63
+         </td>
+        </tr>
+        <tr>
+         <td>
+          4.4
+         </td>
+         <td>
+          Hyponatraemia.......................................................................................................................................................
+         </td>
+         <td>
+          64
+         </td>
+        </tr>
+        <tr>
+         <td>
+          4.5
+         </td>
+         <td>
+          Hypercalcaemia.....................................................................................................................................................
+         </td>
+         <td>
+          66
+         </td>
+        </tr>
+        <tr>
+         <td>
+          4.6
+         </td>
+         <td>
+          Hypocalcaemia .................................................................................................................................................... 67
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          4.8
+         </td>
+         <td>
+          Hypophosphataemia.............................................................................................................................................
+         </td>
+         <td>
+          68
+         </td>
+        </tr>
+        <tr>
+         <td>
+          4.9
+         </td>
+         <td>
+          Hypomagnesaemia................................................................................................................................................
+         </td>
+         <td>
+          68
+         </td>
+        </tr>
+        <tr>
+         <td>
+          4.10
+         </td>
+         <td>
+          Hypermagnesaemia...............................................................................................................................................
+         </td>
+         <td>
+          69
+         </td>
+        </tr>
+        <tr>
+         <td>
+          4.11
+         </td>
+         <td>
+          Blood Gas Analysis...............................................................................................................................................
+         </td>
+         <td>
+          70
+         </td>
+        </tr>
+        <tr>
+         <td>
+          SECTION 5:
+         </td>
+         <td>
+          ENDOCRINE EMERGENCIES
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          5.1
+         </td>
+         <td>
+          Hyperglycaemic Emergencies (DKA and HONKC)
+         </td>
+         <td>
+          74
+         </td>
+        </tr>
+        <tr>
+         <td>
+          5.2
+         </td>
+         <td>
+          Hypoglycaemia......................................................................................................................................................
+         </td>
+         <td>
+          76
+         </td>
+        </tr>
+        <tr>
+         <td>
+          5.3
+         </td>
+         <td>
+          Acute Adrenal Insufficiency...............................................................................................................................
+         </td>
+         <td>
+          76
+         </td>
+        </tr>
+        <tr>
+         <td>
+          5.4
+         </td>
+         <td>
+          Thyrotoxic Crisis / Storm.................................................................................................................................. 77
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          5.5
+         </td>
+         <td>
+          Myxoedema Coma................................................................................................................................................
+         </td>
+         <td>
+          78
+         </td>
+        </tr>
+        <tr>
+         <td>
+          SECTION 6:
+         </td>
+         <td>
+          THERMOREGULATORY EMERGENCIES
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          6.1
+         </td>
+         <td>
+          Hyperthermia ....................................................................................................................................................... 79
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          6.2
+         </td>
+         <td>
+          Heatstroke...............................................................................................................................................................
+         </td>
+         <td>
+          79
+         </td>
+        </tr>
+        <tr>
+         <td>
+          6.3
+         </td>
+         <td>
+          Malignant Hyperpyrexia......................................................................................................................................
+         </td>
+         <td>
+          80
+         </td>
+        </tr>
+        <tr>
+         <td>
+          6.4
+         </td>
+         <td>
+          Hypothermia...........................................................................................................................................................
+         </td>
+         <td>
+          81
+         </td>
+        </tr>
+        <tr>
+         <td>
+          6.5
+         </td>
+         <td>
+          Management of Diving Emergencies...............................................................................................................
+         </td>
+         <td>
+          83
+         </td>
+        </tr>
+       </tbody>
+      </table>
+      <table>
+       <thead>
+        <tr>
+         <th>
+         </th>
+         <th>
+          SECTION 7: TOXICOLOGY
+         </th>
+         <th>
+         </th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td>
+          7.1
+         </td>
+         <td>
+          Poisoning / Drug Overdose.................................................................................................................................
+         </td>
+         <td>
+          85
+         </td>
+        </tr>
+        <tr>
+         <td>
+          7.2
+         </td>
+         <td>
+          Poisonous Plants...................................................................................................................................................
+         </td>
+         <td>
+          91
+         </td>
+        </tr>
+        <tr>
+         <td>
+          7.3
+         </td>
+         <td>
+          Mushroom Poisoning...........................................................................................................................................
+         </td>
+         <td>
+          93
+         </td>
+        </tr>
+        <tr>
+         <td>
+          7.4
+         </td>
+         <td>
+          Emergencies related to Chemical Substance Abuse......................................................................................
+         </td>
+         <td>
+          94
+         </td>
+        </tr>
+        <tr>
+         <td>
+          7.5
+         </td>
+         <td>
+          Poisoning with Traditional Medicines.............................................................................................................
+         </td>
+         <td>
+          98
+         </td>
+        </tr>
+        <tr>
+         <td>
+          7.6
+         </td>
+         <td>
+          Snake Bites.............................................................................................................................................................
+         </td>
+         <td>
+          99
+         </td>
+        </tr>
+        <tr>
+         <td>
+          7.7
+         </td>
+         <td>
+          Scorpion Stings...................................................................................................................................................
+         </td>
+         <td>
+          104
+         </td>
+        </tr>
+        <tr>
+         <td>
+          7.8
+         </td>
+         <td>
+          Spider Bites..........................................................................................................................................................
+         </td>
+         <td>
+          105
+         </td>
+        </tr>
+        <tr>
+         <td>
+          7.9
+         </td>
+         <td>
+          Venom Ophthalmia............................................................................................................................................
+         </td>
+         <td>
+          106
+         </td>
+        </tr>
+        <tr>
+         <td>
+          SECTION 8:
+         </td>
+         <td>
+          HAEMATOLOGICAL DISORDERS
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          8.1
+         </td>
+         <td>
+          Bleeding Disorders.............................................................................................................................................
+         </td>
+         <td>
+          107
+         </td>
+        </tr>
+        <tr>
+         <td>
+          8.2
+         </td>
+         <td>
+          Recognition of Clinical Picture........................................................................................................................
+         </td>
+         <td>
+          107
+         </td>
+        </tr>
+        <tr>
+         <td>
+          8.3
+         </td>
+         <td>
+          Management of Platelet Disorders..................................................................................................................
+         </td>
+         <td>
+          109
+         </td>
+        </tr>
+        <tr>
+         <td>
+          8.4
+         </td>
+         <td>
+          Coagulation Factor Defects..............................................................................................................................
+         </td>
+         <td>
+          110
+         </td>
+        </tr>
+        <tr>
+         <td>
+          8.5
+         </td>
+         <td>
+          Mixed Defects (DIC / Sickle Cell Anaemia)................................................................................................
+         </td>
+         <td>
+          114
+         </td>
+        </tr>
+        <tr>
+         <td>
+          8.6
+         </td>
+         <td>
+          Upper Gastro-Intestinal Bleeding....................................................................................................................
+         </td>
+         <td>
+          118
+         </td>
+        </tr>
+        <tr>
+         <td>
+          SECTION 9:
+         </td>
+         <td>
+          NEUROLOGICAL EMERGENCIES
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          9.1
+         </td>
+         <td>
+          Early Management of Coma of Unknown Cause........................................................................................
+         </td>
+         <td>
+          121
+         </td>
+        </tr>
+        <tr>
+         <td>
+          9.2
+         </td>
+         <td>
+          Status Epilepticus................................................................................................................................................
+         </td>
+         <td>
+          124
+         </td>
+        </tr>
+        <tr>
+         <td>
+          9.3
+         </td>
+         <td>
+          Acute Muscle Weakness...................................................................................................................................
+         </td>
+         <td>
+          127
+         </td>
+        </tr>
+        <tr>
+         <td>
+          9.4
+         </td>
+         <td>
+          Initial Management of Acute Stroke...............................................................................................................
+         </td>
+         <td>
+          128
+         </td>
+        </tr>
+        <tr>
+         <td>
+          9.5
+         </td>
+         <td>
+          Approach to Headache
+         </td>
+         <td>
+          131
+         </td>
+        </tr>
+        <tr>
+         <td>
+          SECTION 10:
+         </td>
+         <td>
+          PSYCHIATRIC EMERGENCIES
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          10.1
+         </td>
+         <td>
+          Management of the Aggressive Patient
+         </td>
+         <td>
+          132
+         </td>
+        </tr>
+        <tr>
+         <td>
+          10.2
+         </td>
+         <td>
+          Managing a Severely Mentally Disturbed Patient.......................................................................................
+         </td>
+         <td>
+          136
+         </td>
+        </tr>
+        <tr>
+         <td>
+          10.3
+         </td>
+         <td>
+          Neuroleptic Malignant Syndrome...................................................................................................................
+         </td>
+         <td>
+          139
+         </td>
+        </tr>
+        <tr>
+         <td>
+          SECTION 11:
+         </td>
+         <td>
+          INFECTIOUS EMERGENCIES
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          11.1
+         </td>
+         <td>
+          Severe Malaria................................................................................................................................................... 142
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          11.2
+         </td>
+         <td>
+          Meningococcal Disease.....................................................................................................................................
+         </td>
+         <td>
+          144
+         </td>
+        </tr>
+        <tr>
+         <td>
+          11.3
+         </td>
+         <td>
+          Cryptococcal Meningitis...................................................................................................................................
+         </td>
+         <td>
+          146
+         </td>
+        </tr>
+        <tr>
+         <td>
+          11.4
+         </td>
+         <td>
+          CSF Findings with Meningitis.........................................................................................................................
+         </td>
+         <td>
+          147
+         </td>
+        </tr>
+        <tr>
+         <td>
+          11.5
+         </td>
+         <td>
+          Pneumocystis Pneumonia ............................................................................................................................... 148
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          11.6
+         </td>
+         <td>
+          Prevention of Rabies..........................................................................................................................................
+         </td>
+         <td>
+          149
+         </td>
+        </tr>
+        <tr>
+         <td>
+          11.7
+         </td>
+         <td>
+          Viral Haemorrhagic Fever.............................................................................................................................. 151
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          11.8
+         </td>
+         <td>
+          Management of Occupational Exposures (HIV/Hep B).............................................................................
+         </td>
+         <td>
+          153
+         </td>
+        </tr>
+        <tr>
+         <td>
+          SECTION 12:
+         </td>
+         <td>
+          ONCOLOGICAL EMERGENCIES
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          12.1
+         </td>
+         <td>
+          Cytopaenias..........................................................................................................................................................
+         </td>
+         <td>
+          157
+         </td>
+        </tr>
+        <tr>
+         <td>
+          12.2
+         </td>
+         <td>
+          Acute Graft versus Host Disease.....................................................................................................................
+         </td>
+         <td>
+          158
+         </td>
+        </tr>
+        <tr>
+         <td>
+          12.3
+         </td>
+         <td>
+          Obstructive Emergencies..................................................................................................................................
+         </td>
+         <td>
+          158
+         </td>
+        </tr>
+        <tr>
+         <td>
+          12.4
+         </td>
+         <td>
+          Malignant Hypercalcaemia...............................................................................................................................
+         </td>
+         <td>
+          159
+         </td>
+        </tr>
+        <tr>
+         <td>
+          SECTION 13:
+         </td>
+         <td>
+          DIAGNOSIS OF DEATH
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          13.1
+         </td>
+         <td>
+          Clinical Diagnosis of Death.......................................................................................................................
+         </td>
+         <td>
+          160
+         </td>
+        </tr>
+        <tr>
+         <td>
+          13.2
+         </td>
+         <td>
+          Brainstem Death Testing...................................................................................................................................
+         </td>
+         <td>
+          160
+         </td>
+        </tr>
+        <tr>
+         <td>
+          13.3
+         </td>
+         <td>
+          Organ Donation...................................................................................................................................................
+         </td>
+         <td>
+          161
+         </td>
+        </tr>
+        <tr>
+         <td>
+          SECTION 14:
+         </td>
+         <td>
+          EMERGENCY DEPARTMENTS
+         </td>
+         <td>
+         </td>
+        </tr>
+        <tr>
+         <td>
+          14.1
+         </td>
+         <td>
+          Suggested Emergency Department Equipment............................................................................................
+         </td>
+         <td>
+          164
+         </td>
+        </tr>
+        <tr>
+         <td>
+          14.2
+         </td>
+         <td>
+          Emergency Drugs List.......................................................................................................................................
+         </td>
+         <td>
+          166
+         </td>
+        </tr>
+        <tr>
+         <td>
+          14.3
+         </td>
+         <td>
+          Emergency Airway Equipment
+         </td>
+         <td>
+          168
+         </td>
+        </tr>
+        <tr>
+         <td>
+          14.4
+         </td>
+         <td>
+          Medical Emergency Team Calling Criteria
+         </td>
+         <td>
+          170
+         </td>
+        </tr>
+       </tbody>
+      </table>
+      <h2>
+       <b>
+        SECTION 1: CARDIO-RESPIRATORY EMERGENCIES
+       </b>
+      </h2>
+      <h2>
+       <span id="page-4-0">
+       </span>
+       <b>
+        SECTION 1.1 CARDIAC ARREST
+       </b>
+      </h2>
+      <h3>
+       <b>
+        ASSESSMENT
+       </b>
+      </h3>
+      <p block-type="Text">
+       <b>
+        H - ''Hazards?"
+       </b>
+       Ensure that the environment is safe, make it safe, or remove patient to where it is safe.
+      </p>
+      <p block-type="Text">
+       <b>
+        H-"Hello?"
+       </b>
+       Check for responsiveness by tapping and talking to the patient. Check for
+      </p>
+      <p block-type="Text">
+       breathing and pulse. If responsive and/or breathing normally, treat illnesses or injuries as  necessary. Get assistance if needed, and reassess patient continuously.
+       <b>
+        H - "Help!
+       </b>
+       " If patient is  unresponsive and not breathing or having only occasional gasps, call
+      </p>
+      <p block-type="Text">
+       for help and activate the Emergency Medical Services / Resuscitation Team. If no pulse,  call for a Defibrillator/AED and start CPR, beginning with chest compressions. If a pulse  is present but breathing is ineffective, give rescue breaths (once every 6 seconds).  Reassess continuously.
+      </p>
+      <h3>
+       <b>
+        CARDIO-PULMONARY RESUSCITATION (CPR)
+       </b>
+      </h3>
+      <h3>
+       <b>
+        No Pulse (or not sure):
+       </b>
+      </h3>
+      <p block-type="Text">
+       Briefly check for the presence or absence of a central pulse in a patient who is unresponsive and not  breathing normally. If no definite pulse is felt within 10 seconds, or if uncertain, immediately start chest  compressions while awaiting the defibrillator.
+      </p>
+      <p block-type="Text">
+       Any unresponsive patient who is not breathing or having only occasional gasps requires
+       <b>
+        immediate  activation
+       </b>
+       of the Emergency Medical Services (EMS) or local Resuscitation Team. Agonal respiration  (gasping) can persist for several minutes after cardiac arrest, and should
+       <b>
+        not
+       </b>
+       delay the initiation of  resuscitation. Similarly, seizure-like activity may be an early manifestation of cardiac arrest. Know your  local EMS/Resuscitation Team telephone numbers! Ensure that healthcare professional assistance with  defibrillation and/or advanced life support capabilities are activated, and that the exact location of the patient  has been confirmed.
+      </p>
+      <h4>
+       <b>
+        Start Compressions:
+       </b>
+      </h4>
+      <p block-type="Text">
+       Place patient supine on a
+       <b>
+        firm,
+       </b>
+       flat surface. Position yourself directly above the patient and place the heel of  both hands, one on top of the other, on the centre of the chest on the lower half of the sternum just above the  xiphistemum. Keep your elbows straight and your shoulders directly above your hands. If the patient is on a  bed or stretcher and cannot safely be moved, it is essential that you
+       <b>
+        stand on a step or chair
+       </b>
+       to ensure that  you are positioned well above the patient. If the patient is lying on a mattress, place a cardiac arrest board  under the patient's chest, ensuring that you are able to kneel on the board alongside the patient's shoulder.  Compress sternum to a depth of
+       <b>
+        at least
+       </b>
+       5cm at a rate of 100 - 120 per minute (almost 2 compressions per  second). Push hard and push fast, and allow complete chest recoil after each compression. Minimize  interruptions.
+      </p>
+      <p block-type="Text">
+       After 30 chest compressions, open the airway and give 2 rescue breaths. This can be done using a bag-valveresuscitator, or face mask, or mouth-to-mouth using a protective barrier device. Provide supplemental  oxygen if available.
+      </p>
+      <p block-type="Text">
+       If for whatever reason ventilations cannot be given, perform
+       <b>
+        continuous uninterrupted chest compressions
+       </b>
+       until a suitable device becomes available.
+      </p>
+      <h4>
+       <b>
+        E - Evaluation:
+       </b>
+      </h4>
+      <p block-type="ListGroup">
+       <ul>
+        <li block-type="ListItem">
+         Obtain a
+         <b>
+          12-lead ECG
+         </b>
+         tracing (including a right-sided ECG).
+        </li>
+        <li block-type="ListItem">
+         Coronary angiography if the arrest of suspected cardiac origin. Consider
+         <b>
+          early reperfu sion
+         </b>
+         strategies if evidence of ischaemia (especially STEMI or LBBB).
+        </li>
+        <li block-type="ListItem">
+         Continuous ECG and haemodynamic monitoring (vital signs, Sp02, end-tidal C02, blood  glucose, electrolytes, temperature).
+        </li>
+        <li block-type="ListItem">
+         Insert nasogastric and urinary catheters if appropriate.
+        </li>
+       </ul>
+      </p>
+      <h3>
+       <b>
+        F
+       </b>
+       -
+       <b>
+        "Freezing"
+       </b>
+       (Targeted Temperature Management) if patient is unresponsive:
+      </h3>
+      <p block-type="ListGroup">
+       <ul>
+        <li block-type="ListItem">
+         Use established cooling startegies and existing protocols for patients with return of spontaneous  circulation who remain comatosed (especially if post-VF/VT).
+        </li>
+        <li block-type="ListItem">
+         Maintain a constant targeted temperature between 32  36°C for at least 24 hours.
+        </li>
+        <li block-type="ListItem">
+         Monitor glucose, electrolytes (especially K, Ca, Mg, P04) and haemodynamic status.
+        </li>
+        <li block-type="ListItem">
+         Rewarm at 0,25 °C per hour. Avoid rebound hyperthermia (Temp &gt; 37,5°C).
+        </li>
+       </ul>
+      </p>
+      <h3>
+       <b>
+        G - Glucose Control:
+       </b>
+      </h3>
+      <p block-type="ListGroup">
+       <ul>
+        <li block-type="ListItem">
+         Maintain blood glucose levels at 8-10 mmol/1
+        </li>
+        <li block-type="ListItem">
+         Avoid hypoglycaemia
+        </li>
+       </ul>
+      </p>
+      <h3>
+       <b>
+        H - Head / Neuro Evaluation:
+       </b>
+      </h3>
+      <p block-type="ListGroup">
+       <ul>
+        <li block-type="ListItem">
+         Treat seizures aggressively. Consider EEG monitoring.
+        </li>
+        <li block-type="ListItem">
+         Consider brain imaging
+        </li>
+        <li block-type="ListItem">
+         Delay prognostication for at least 72 hours post normothermia
+        </li>
+       </ul>
+      </p>
+      <p block-type="Text">
+       Consult relevant specialist colleagues for further post-resuscitation critical care management. Whenever  appropriate, arrange transfer of the patient to a specialist unit by appropriate mode of transfer.
+      </p>
+      <p block-type="Text">
+       Contact, communicate with and update regularly patient's family or guardians throughout the resuscitation  process wherever possible. Consider post-resuscitation debriefing for family and resuscitating personnel as  soon as possible.
+      </p>
+      <p block-type="Text">
+       The accompanying
+       <b>
+        Advanced Cardiac Arrest Algorithm and Post Cardiac Arrest Care Algorithm,
+       </b>
+       based  on the recommendations of the
+       <b>
+        International Liaison Committee on Resuscitation (ILCOR),
+       </b>
+       provides a  complementary approach.
+      </p>
+      <h2>
+       <b>
+        ADVANCED CARDIAC ARREST  ALGORITHM Adult and Paediatric
+       </b>
+      </h2>
+      <p>
+       <img src="https://cdn.kulturegeek.fr/wp-content/uploads/2021/09/Kindle-Paperwhite-2021.jpg"/>
+      </p>
+      <p>
+       <img src="https://cdn.kulturegeek.fr/wp-content/uploads/2021/09/Kindle-Paperwhite-2021.jpg"/>
+      </p>
+      <p>
+       2015
+      </p>
+      <h1>
+       POST CARDIAC ARREST CARE
+      </h1>
+      <h2>
+       (Return of Spontaneous Circulation)
+      </h2>
+      <p>
+       <img src="https://cdn.kulturegeek.fr/wp-content/uploads/2021/09/Kindle-Paperwhite-2021.jpg"/>
+      </p>
+      <p>
+       2015
+      </p>
+      <p>
+       <img src="https://cdn.kulturegeek.fr/wp-content/uploads/2021/09/Kindle-Paperwhite-2021.jpg"/>
+      </p>
+     </body>
+    </html>
+    

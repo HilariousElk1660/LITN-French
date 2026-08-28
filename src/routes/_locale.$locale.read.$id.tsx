@@ -1,11 +1,13 @@
-import { createFileRoute, Link, notFound, useRouter, useCanGoBack } from "@tanstack/react-router";
-import { useEffect, useState, Suspense } from "react";
+import { createFileRoute, Link, notFound, useRouter, useCanGoBack, reactUse } from "@tanstack/react-router";
+import { useEffect, useState, Suspense, useRef } from "react";
 // import { getBook, sampleChapter } from "@/lib/books";
 import logo from "@/assets/litn-logo.asset.json";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import PdfViewer from "@/components/pdf-viewer";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Type, Sun, Palette } from 'lucide-react';
+import { HTMLViewer } from "@/components/html-viewer";
+import html from "@/assets/html.txt"
 
 export const Route = createFileRoute("/_locale/$locale/read/$id")({
   ssr: false,
@@ -20,7 +22,7 @@ export const Route = createFileRoute("/_locale/$locale/read/$id")({
   component: Reader,
 });
 
-function BackButton({ bookId }: { bookId: string }) {
+function BackButton({ bookId,readerContainer }: { bookId: string, readerContainer: any }) {
   const router = useRouter();
   const canGoBack = useCanGoBack();
 
@@ -31,6 +33,47 @@ function BackButton({ bookId }: { bookId: string }) {
       router.navigate({ to: "/book/$id", params: { id: bookId } });
     }
   };
+ const [isOpen, setIsOpen] = useState<boolean>(false);
+const [fontSize, setFontSize] = useState<number>(16);
+const [fontFamily, setFontFamily] = useState<string>('serif');
+const [textColor, setTextColor] = useState<string>('#000000');
+const [bgColor, setBgColor] = useState<string>('#f5f5dc'); // Default beige
+
+const updateSetting = (key: string, value: any) => {
+  // Update local state first
+  if (key === 'fontSize') setFontSize(value);
+  if (key === 'fontFamily') setFontFamily(value);
+  if (key === 'textColor') setTextColor(value);
+  if (key === 'bgColor') setBgColor(value);
+
+  // Construct updated object with the new value override
+  const updated = {
+    fontSize,
+    fontFamily,
+    textColor,
+    bgColor,
+    [key]: value
+  };
+
+  // Pass updated settings back to parent reader component
+  if (onSettingsChange) {
+    onSettingsChange(updated);
+  }
+};
+
+  useEffect(() => {
+    if (readerContainer.current) {
+      const cont = readerContainer.current;
+      
+      // Assign properties directly to prevent invalid strings from silently failing
+      cont.style.fontSize = `${fontSize}px`;
+      cont.style.color = textColor;
+      cont.style.backgroundColor = bgColor;
+
+      // Handle generic font family fallback
+      cont.style.fontFamily = fontFamily.replace('font-', ''); 
+    }
+  }, [fontFamily, fontSize, textColor, bgColor]);
 
   return (
     <button
@@ -83,6 +126,7 @@ function Reader() {
   const { id } = Route.useParams();
   const { chapter } = Route.useSearch()
   const { user, loading, backendUrl } = useAuth();
+  const readerContainer = useRef<any>(null);
  
   const fetchBook = async (bookId: string) => {
     try {
@@ -117,18 +161,24 @@ function Reader() {
   }, [id, loading, user?.user_id, backendUrl]);
   return (
     <AccessGate bookId={"d"}>
-      <BackButton bookId={id} />
-      <ReaderInner book={book} pageStoppedAt={pageStoppedAt} book_id={id} />
+      <BackButton bookId={id} readerContainer={readerContainer} />
+      <ReaderInner book={book} pageStoppedAt={pageStoppedAt} book_id={id} container={readerContainer} />
+      
     </AccessGate>
   );
 }
 
-function ReaderInner({ book, pageStoppedAt, book_id }: { book: any; pageStoppedAt: number; book_id: string }) {
-  
+function ReaderInner({ book, pageStoppedAt, book_id, container }: { book: any; pageStoppedAt: number; book_id: string; container: React.RefObject<any> }) {
   const { user } = useAuth();
   const [mounted, setMounted] = useState(false);
+  const [content, setContent] = useState('');
+  // const  = useRef();
+
   useEffect(() => {
     setMounted(true);
+    fetch(html)
+      .then((res) => res.text())
+      .then((data) => setContent(data));
   }, []);
 
   if (!mounted) {
