@@ -22,12 +22,109 @@ export type Book = {
 };
 
 // Payment details shown to buyers during checkout.
+// The app is wired for Airtel payments and keeps a small list of supported currencies so
+// buyers can still override the browser-detected default if needed.
 export const PAYMENT_INFO = {
-  provider: "MTN Mobile Money",
-  number: "+260 97 123 4567",
-  accountName: "LITN Medical Training",
+  provider: "Airtel Money",
+  number: "+250 78 000 0000",
+  accountName: "LITN Digital Library",
   reviewWindow: "within 24 hours",
 };
+
+// These are the currencies a buyer may choose from when sending an Airtel payment.
+// We keep the list intentionally small but practical for different regions.
+export const CURRENCY_OPTIONS = [
+  "USD",
+  "GHS",
+  "KES",
+  "NGN",
+  "UGX",
+  "TZS",
+  "ZMW",
+  "RWF",
+  "XAF",
+  "EUR",
+  "GBP",
+  "ZAR",
+  "R",
+] as const;
+
+// Approximate FX rates keyed to USD so we can convert a book's original price into the
+// buyer's preferred payment currency while they are on the checkout modal.
+// The rates are intentionally lightweight and intentionally not used for accounting: they are
+// display-only conversion values for the app UI.
+export const CURRENCY_RATES: Record<string, number> = {
+  USD: 1,
+  GHS: 13.5,
+  KES: 150,
+  NGN: 1500,
+  UGX: 3600,
+  TZS: 2500,
+  ZMW: 28,
+  RWF: 1370,
+  XAF: 610,
+  EUR: 0.92,
+  GBP: 0.78,
+  ZAR: 18.5,
+  R: 18.5,
+};
+
+export function normalizeCurrency(currency?: string): (typeof CURRENCY_OPTIONS)[number] {
+  const code = (currency ?? "USD").trim().toUpperCase();
+  if (code === "RAND" || code === "R") return "R";
+  return (CURRENCY_OPTIONS as readonly string[]).includes(code)
+    ? (code as (typeof CURRENCY_OPTIONS)[number])
+    : "USD";
+}
+
+export function convertCurrency(
+  amount: number,
+  fromCurrency?: string,
+  toCurrency?: string,
+): number {
+  const baseCurrency = normalizeCurrency(fromCurrency || "USD");
+  const targetCurrency = normalizeCurrency(toCurrency || "USD");
+
+  if (baseCurrency === targetCurrency) return amount;
+
+  const usdValue = amount / (CURRENCY_RATES[baseCurrency] ?? 1);
+  return usdValue * (CURRENCY_RATES[targetCurrency] ?? 1);
+}
+
+export function formatCurrencyAmount(value: number, currency: string): string {
+  const normalized = normalizeCurrency(currency);
+  const rounded = Number(value.toFixed(2));
+  const withCode = normalized === "R" ? "R" : normalized;
+  return `${withCode} ${rounded.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+}
+
+export function detectCurrencyFromLocale(): (typeof CURRENCY_OPTIONS)[number] {
+  // Auto-detect the preferred currency using the browser locale so the payment flow feels
+  // native for the user without making them choose a currency manually every time.
+  if (typeof navigator !== "undefined") {
+    const locale = navigator.language.toLowerCase();
+    const localeToCurrency: Record<string, (typeof CURRENCY_OPTIONS)[number]> = {
+      "en-ke": "KES",
+      "en-gh": "GHS",
+      "en-ng": "NGN",
+      "en-ug": "UGX",
+      "en-tz": "TZS",
+      "en-zm": "ZMW",
+      "fr-cm": "XAF",
+      "fr-rw": "RWF",
+      "en-us": "USD",
+      "en-gb": "GBP",
+      "en-eu": "EUR",
+      "en-za": "ZAR",
+    };
+
+    for (const [key, value] of Object.entries(localeToCurrency)) {
+      if (locale.startsWith(key)) return value;
+    }
+  }
+
+  return "USD";
+}
 
 export const books: Book[] = [
   {
