@@ -8,6 +8,8 @@ import PdfViewer from "@/components/pdf-viewer";
 import { ArrowLeft, Type, Sun, Palette } from 'lucide-react';
 import { HTMLViewer } from "@/components/html-viewer";
 import html from "@/assets/html.txt"
+import { useBooks } from "@/hooks/use-books";
+import { read } from "fs";
 
 export const Route = createFileRoute("/_locale/$locale/read/$id")({
   ssr: false,
@@ -22,9 +24,11 @@ export const Route = createFileRoute("/_locale/$locale/read/$id")({
   component: Reader,
 });
 
-function BackButton({ bookId,readerContainer }: { bookId: string, readerContainer: any }) {
+function BackButton({ bookId,readerContainer }: { bookId: string, readerContainer: any, initialStyling: any }) {
   const router = useRouter();
   const canGoBack = useCanGoBack();
+  const {readingSettings} = useBooks();
+  const {backendUrl:api} = useAuth()
 
   const handleBack = () => {
     if (canGoBack) {
@@ -33,18 +37,22 @@ function BackButton({ bookId,readerContainer }: { bookId: string, readerContaine
       router.navigate({ to: "/book/$id", params: { id: bookId } });
     }
   };
- const [isOpen, setIsOpen] = useState<boolean>(false);
-const [fontSize, setFontSize] = useState<number>(16);
-const [fontFamily, setFontFamily] = useState<string>('serif');
-const [textColor, setTextColor] = useState<string>('#000000');
-const [bgColor, setBgColor] = useState<string>('#f5f5dc'); // Default beige
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [fontSize, setFontSize] = useState<number>(readingSettings?.fontSize || 16);
+  const [fontFamily, setFontFamily] = useState<string>(readingSettings?.fontFamily || 'serif');
+  const [textColor, setTextColor] = useState<string>(readingSettings?.textColor || '#000000');
+  const [bgColor, setBgColor] = useState<string>(readingSettings?.bgColor || '#f5f5dc'); 
+  const [theme, setTheme] = useState<string>(readingSettings?.theme || 'light');
 
-const updateSetting = (key: string, value: any) => {
+  const updateSetting = (key: string, value: any) => {
+
+
   // Update local state first
   if (key === 'fontSize') setFontSize(value);
   if (key === 'fontFamily') setFontFamily(value);
   if (key === 'textColor') setTextColor(value);
   if (key === 'bgColor') setBgColor(value);
+  if (key === 'theme') setTheme(value);
 
   // Construct updated object with the new value override
   const updated = {
@@ -54,12 +62,48 @@ const updateSetting = (key: string, value: any) => {
     bgColor,
     [key]: value
   };
-
-  // Pass updated settings back to parent reader component
-  if (onSettingsChange) {
-    onSettingsChange(updated);
-  }
 };
+
+
+  useEffect(()=>{
+  setFontSize(readingSettings?.fontSize || "16px");
+  setFontFamily(readingSettings?.fontFamily || 'serif');
+  setTextColor(readingSettings?.textColor || '#000000');
+  setBgColor(readingSettings?.bgColor || '#f5f5dc');
+  setTheme(readingSettings?.theme || 'light');
+
+  },[readingSettings])
+
+  const saveSettings = async ()=>{
+    console.log({
+      theme,
+        fontSize,
+        fontFamily,
+        textColor,
+        bgColor
+      })
+    const res = await fetch(`${api}/library/reading_settings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+      },
+      body: JSON.stringify({
+        theme,
+        fontSize: `${fontSize}px`,
+        fontFamily,
+        textColor,
+        bgColor
+      })
+    });
+  }
+
+  useEffect(()=>{
+    if (isOpen === false)
+    saveSettings();
+
+  },[isOpen]);
+
 
   useEffect(() => {
     if (readerContainer.current) {
@@ -76,14 +120,125 @@ const updateSetting = (key: string, value: any) => {
   }, [fontFamily, fontSize, textColor, bgColor]);
 
   return (
-    <button
-      onClick={handleBack}
-      aria-label="Back"
-      className="fixed left-4 top-4 z-50 flex items-center cursor-pointer gap-2 rounded-full bg-background/80 px-4 py-2 text-sm font-medium shadow-sm backdrop-blur transition hover:bg-background"
-    >
-      <ArrowLeft className="h-4 w-4" />
-      Back
-    </button>
+   <header className="fixed top-0 left-0 w-full h-[6vh] min-h-[48px] bg-background backdrop-blur border-b border-teal-200/50 z-50 flex items-center justify-between px-4">
+      {/* Back Button */}
+      <button
+        onClick={handleBack}
+        aria-label="Back"
+        className="flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition hover:bg-black/5 active:scale-95 cursor-pointer"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        <span>Back</span>
+      </button>
+
+      {/* Settings Toggle & Dropdown Menu */}
+      <div className="relative">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label="Reader Settings"
+          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition hover:bg-black/5 active:scale-95 cursor-pointer"
+        >
+          <Type className="h-4 w-4" />
+          <span>Appearance</span>
+        </button>
+
+        {/* Dropdown Menu */}
+        {isOpen && (
+          <div className="absolute right-0 mt-2 w-72 rounded-xl bg-white p-4 shadow-xl ring-1 ring-black/10 z-50 flex flex-col gap-4 text-slate-800">
+            {/* Font Family Selection */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Font Family</label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { name: 'Serif', val: 'font-serif' },
+                  { name: 'Sans', val: 'font-sans' },
+                  { name: 'Mono', val: 'font-mono' }
+                ].map((font) => (
+                  <button
+                    key={font.val}
+                    onClick={() => updateSetting('fontFamily', font.val)}
+                    className={`py-1 px-2 text-xs rounded border ${
+                      fontFamily === font.val ? 'border-amber-600 bg-amber-50 font-bold' : 'border-slate-200'
+                    }`}
+                  >
+                    {font.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Font Size Adjustment */}
+            <div className="flex flex-col gap-1.5">
+              <div className="flex justify-between text-xs font-semibold text-slate-500">
+                <span className="uppercase tracking-wider">Font Size</span>
+                <span>{fontSize}px</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-bold">A-</span>
+                <input
+                  type="range"
+                  min="12"
+                  max="28"
+                  value={fontSize}
+                  onChange={(e) => updateSetting('fontSize', Number(e.target.value))}
+                  className="w-full accent-amber-600 cursor-pointer"
+                />
+                <span className="text-base font-bold">A+</span>
+              </div>
+            </div>
+
+            {/* Background Color Shortcuts */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Theme Presets</label>
+              <div className="flex gap-2">
+                {[
+                  { name: 'Light', bg: '#ffffff', text: '#171717' },
+                  { name: 'Sepia', bg: '#fbf0d9', text: '#5f4b32' },
+                  { name: 'Dark', bg: '#1c1917', text: '#f5f5f4' }
+                ].map((preset) => (
+                  <button
+                    key={preset.name}
+                    onClick={() => {
+                      // updateSetting('bgColor', preset.bg);
+                      // updateSetting('textColor', preset.text);
+                      setBgColor(preset.bg) 
+                      setTextColor(preset.text)
+                      setTheme(preset.name)
+                    }}
+                    style={{ backgroundColor: preset.bg, color: preset.text }}
+                    className="flex-1 py-1 text-xs rounded border border-slate-300 font-medium shadow-sm"
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Color Pickers */}
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+              <label className="flex items-center justify-between text-xs font-medium text-slate-600 cursor-pointer">
+                Text Color
+                <input
+                  type="color"
+                  value={textColor}
+                  onChange={(e) => updateSetting('textColor', e.target.value)}
+                  className="h-6 w-6 rounded border-none cursor-pointer bg-transparent"
+                />
+              </label>
+              <label className="flex items-center justify-between text-xs font-medium text-slate-600 cursor-pointer">
+                Page Color
+                <input
+                  type="color"
+                  value={bgColor}
+                  onChange={(e) => updateSetting('bgColor', e.target.value)}
+                  className="h-6 w-6 rounded border-none cursor-pointer bg-transparent"
+                />
+              </label>
+            </div>
+          </div>
+        )}
+      </div>
+    </header>
   );
 }
 
@@ -127,19 +282,23 @@ function Reader() {
   const { chapter } = Route.useSearch()
   const { user, loading, backendUrl } = useAuth();
   const readerContainer = useRef<any>(null);
+  
  
   const fetchBook = async (bookId: string) => {
     try {
       const base = backendUrl;
+
+      //getting book
       const res = await fetch(`${base}/read_book/${bookId}`);
       if (!res.ok) {
         throw new Error("Failed to fetch book " + res.statusText);
       }
       
       const bookData = await res.json();
+      console.log("BOOK DATA", bookData);
       setBook({...bookData, "pdf_file_url": JSON.parse(bookData.pdf_file_url)});
-      console.log(bookData)
-
+      
+      //getting reading progress
       const readerId = user?.user_id
       const res2 = await fetch(`${base}/reading_progress?book_id=${bookId}&reader_id=${readerId}`);
       if (res2.ok) {
@@ -149,6 +308,8 @@ function Reader() {
         console.log("page",page)
         setPageStoppedAt(page)
       }
+
+
     } catch (e) {
       console.error("Error fetching book:", e);
     }
@@ -172,30 +333,46 @@ function ReaderInner({ book, pageStoppedAt, book_id, container }: { book: any; p
   const { user } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [content, setContent] = useState('');
-  // const  = useRef();
+  const {readingSettings} = useBooks();
+  console.log("STYLING", readingSettings);
+  const styling = `<style>
+
+ 
+  .page{
+  border-bottom: 2px solid ${container.current?.style.color || 'teal'};
+  padding: 60px 0;
+  width:60vw;
+  text-align:center
+  overflow: visible;
+
+  }
+  img{
+filter: sepia(${readingSettings?.theme === "Sepia" ? "100%" : "0%"}) brightness(${readingSettings?.theme === "Dark" ? "60%" : "100%"});
+  }
+
+  </style>`;
 
   useEffect(() => {
+    if (!readingSettings.theme || !book) return;
+  
     setMounted(true);
-    fetch(html)
+    console.log("PDF FILE URL", book.pdf_file_url.french);
+    fetch(book.pdf_file_url.french)
       .then((res) => res.text())
-      .then((data) => setContent(data));
-  }, []);
+      .then((data) => setContent(data +  styling));
+
+  }, [readingSettings,book]);
 
   if (!mounted) {
     return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading reader…</div>;
   }
 
-  return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading book…</div>}>
-      {!pageStoppedAt? <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading book…</div>: (
-        <PdfViewer
-          initialPage={pageStoppedAt}
-          file={book?.pdf_file_url[user?.prefferedLanguage || 'english']} 
-          book_id={book_id}
-        />
-      )}
-    </Suspense>
   
 
-  );
+  return (
+    <div style={{width: "99vw", display: "flex", justifyContent: "center",fontFamily: readingSettings?.fontFamily,fontSize: readingSettings?.fontSize, backgroundColor:readingSettings?.bgColor, color:readingSettings?.textColor}}ref={container}>
+      <HTMLViewer htmlString={content}/>
+
+    </div>
+  )
 }

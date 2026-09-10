@@ -32,7 +32,7 @@ export function BookList({ allBooks, bookStats, handleViewBook, loadBookReport, 
       </div>
 
       {/* Book List Grid */}
-      <div className="grid gap-4 lg:grid-cols-1">
+      <div className="grid gap-4 lg:grid-cols-2">
         {filteredBooks.length > 0 ? (
           filteredBooks.map((book) => {
             const stats = bookStats.get(book.book_id) ?? { totalRequests: 0, paidRequests: 0 };

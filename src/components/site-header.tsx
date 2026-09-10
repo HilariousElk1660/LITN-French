@@ -3,6 +3,7 @@ import { Link, useLocation, useRouter } from "@tanstack/react-router";
 import logo from "@/assets/logo1.png";
 import { useAuth } from "@/hooks/use-auth";
 import { Shield, Crown, ChevronDown, LogOut, User, Menu, X } from "lucide-react";
+import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 import {
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
@@ -105,7 +106,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur-xl">
-      <div className="mx-auto flex w-full min-h-16 max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex w-full min-h-16 flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-18">
         <Link to="/" className="flex items-center gap-3">
           <img src={logo} alt="" className="h-12 w-12 rounded-md object-contain sm:h-[90px] sm:w-[90px]" />
         </Link>
@@ -125,6 +126,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="relative ml-auto flex items-center gap-2" ref={mobileNavRef}>
+          <PWAInstallPrompt />
           <LanguageSwitcher />
           {loading ? null : user ? (
             <>

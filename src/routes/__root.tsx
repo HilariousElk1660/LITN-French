@@ -74,12 +74,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           >
             Try again
           </button>
-          <a
-            href="/"
+          <Link
+            to="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
             Go home
-          </a>
+          </Link>
         </div>
       </div>
     </div>
@@ -140,6 +140,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           content:
             "Community-first reading platform with serialised chapters, book rooms, and direct access to authors.",
         },
+        { name: "theme-color", content: "#132028" },
+        { name: "mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+        { name: "apple-mobile-web-app-title", content: "LITN" },
         { property: "og:title", content: "LITN" },
         { property: "og:description", content: "Read together. Meet the authors." },
         { property: "og:type", content: "website" },
@@ -148,6 +153,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       links: [
         { rel: "stylesheet", href: appCss },
         { rel: "icon", href: favicon, type: "image/x-icon" },
+        { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
         { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
         {
@@ -161,6 +167,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         })),
         { rel: "alternate", hrefLang: "x-default", href: `${origin}${withLocalePath(canonicalPath, DEFAULT_LOCALE)}` },
         { rel: "canonical", href: canonicalHref },
+        { rel: 'manifest', href: '/manifest.webmanifest' },
       ],
     };
   },
@@ -189,6 +196,17 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+    useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      import("virtual:pwa-register")
+        .then(({ registerSW }) => {
+          registerSW({ immediate: true });
+        })
+        .catch((error) => {
+          console.error("Service worker registration failed", error);
+        });
+    }
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

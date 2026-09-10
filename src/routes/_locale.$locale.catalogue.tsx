@@ -21,8 +21,18 @@ export const Route = createFileRoute("/_locale/$locale/catalogue")({
 export function CataloguePage() {
   const { q: initialQ } = Route.useSearch();
   const { user, loading, backendUrl } = useAuth();
-  const [books, setBooks] = useState<Book[]>([]);
-  const [loadingBooks, setLoadingBooks] = useState(true);
+  const [books, setBooks] = useState<Book[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("litn_all_books_mapped");
+        return cached ? JSON.parse(cached) : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+  const [loadingBooks, setLoadingBooks] = useState(books.length === 0);
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState(initialQ);
   const [genre, setGenre] = useState("All");
@@ -31,7 +41,7 @@ export function CataloguePage() {
 
   useEffect(() => {
     const fetchBooks = async () => {
-      setLoadingBooks(true);
+      if (books.length === 0) setLoadingBooks(true);
       setError(null);
 
       try {
@@ -58,9 +68,25 @@ export function CataloguePage() {
         }));
 
         setBooks(mappedBooks);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("litn_all_books_mapped", JSON.stringify(mappedBooks));
+        }
       } catch (err) {
-        console.error(err);
-        setError(err instanceof Error ? err.message : "Unable to load catalogue.");
+        console.error("Catalogue fetch error:", err);
+        const cached = typeof window !== "undefined" ? localStorage.getItem("litn_all_books_mapped") : null;
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached);
+            if (parsed && parsed.length > 0) {
+              setBooks(parsed);
+              setError(null);
+              return;
+            }
+          } catch {}
+        }
+        if (books.length === 0) {
+          setError(err instanceof Error ? err.message : "Unable to load catalogue.");
+        }
       } finally {
         setLoadingBooks(false);
       }
@@ -110,7 +136,7 @@ export function CataloguePage() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <div className="mx-auto max-w-7xl px-4 pt-10 pb-16 sm:px-6 sm:pt-12 sm:pb-20">
+      <div className="mx-auto px-4 pt-10 pb-16 sm:px-18 sm:pt-12 sm:pb-20">
         <h1 className="font-display text-3xl sm:text-4xl md:text-5xl">The Library</h1>
         <p className="mt-2 text-muted-foreground">{results.length} medical-training titles available.</p>
 

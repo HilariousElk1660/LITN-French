@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Link, useLocation, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -27,12 +27,19 @@ export const Route = createFileRoute("/_locale/$locale/")({
 });
 
 export function IndexPage() {
-  const {user} = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
+  const router = useRouter();
   const locale = getLocaleFromPath(location.pathname);
   const [translations, setTranslations] = useState<Record<string, string>>({});
 
   const welcomeHeadline = translations["common.welcomeHeadline"] ?? "Clinical books,";
+
+  useEffect(() => {
+    if (user?.email) {
+      router.navigate({ to: withLocalePath("/home", locale), replace: true });
+    }
+  }, [user, locale, router]);
 
   useEffect(() => {
     let active = true;
@@ -52,8 +59,6 @@ export function IndexPage() {
       active = false;
     };
   }, [locale]);
-
-  if (user?.email) window.location.href = withLocalePath("/home", locale);
   return (
     <div className="min-h-screen">
       <SiteHeader />

@@ -641,6 +641,103 @@ const xmlContent = `<?xml version="1.0"?>
     }
   };
 
+  const handleCheckBookStatus = async (bookId: string) => {
+    try {
+      const res = await fetch(`${backendUrl}/book_status/${bookId}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || data.error || "Failed to check book status");
+      }
+      return data;
+    } catch (error) {
+      console.error("Error checking book status", error);
+      toast.error("Unable to check book status.");
+      return null;
+    }
+  };
+
+  const pollBookStatus = (
+  bookId: string,
+  {
+    intervalMs = 3000,
+    timeoutMs = 10 * 60 * 1000, // give up after 10 minutes
+    onUpdate,
+    onDone,
+    onTimeout,
+  }: {
+    intervalMs?: number;
+    timeoutMs?: number;
+    onUpdate?: (data: any) => void;
+    onDone?: (data: any) => void;
+    onTimeout?: () => void;
+  }
+) => {
+  const startedAt = Date.now();
+  let cancelled = false;
+  let timeoutId: ReturnType<typeof setTimeout>;
+
+  const tick = async () => {
+    if (cancelled) return;
+
+    const data = await handleCheckBookStatus(bookId);
+
+    if (cancelled) return;
+
+    if (!data) {
+      // request failed — decide whether to retry or bail
+      timeoutId = setTimeout(tick, intervalMs);
+      return;
+    }
+
+    onUpdate?.(data);
+
+    const isDone = data.status === "completed" || data.status === "failed";
+    if (isDone) {
+      onDone?.(data);
+      return;
+    }
+
+    if (Date.now() - startedAt >= timeoutMs) {
+      onTimeout?.();
+      return;
+    }
+
+    timeoutId = setTimeout(tick, intervalMs);
+  };
+
+  tick();
+
+  return () => {
+    cancelled = true;
+    clearTimeout(timeoutId);
+  };
+};
+
+const [pollingBookId, setPollingBookId] = useState<string | null>(null);
+useEffect(() => {
+  if (!pollingBookId) return;
+
+  const stopPolling = pollBookStatus(pollingBookId, {
+    intervalMs: 3000,
+    timeoutMs: 120_000,
+    onUpdate: () => toast.info("Book is still being processed."),
+    onDone: async (data) => {
+      if (data.status === "completed") {
+        toast.success("Book is ready!") ;
+        await loadBooks();
+      } else {
+        toast.error("Book processing failed.");
+      }
+    },
+    onTimeout: () => toast.error("Timed out waiting for book status."),
+  });
+
+  return stopPolling; // cleanup on unmount
+}, [pollingBookId]);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!user) return;
@@ -676,18 +773,19 @@ const xmlContent = `<?xml version="1.0"?>
         throw new Error(data.detail || data.error || "Failed to upload book");
       }
       toast.success("Book upload started.");
-      setFormState({
-        bookName: "",
-        authorName: "",
-        publishedDate: "",
-        category: "",
-        price: "",
-        bookCover: null,
-        pdfFile: null,
-        currentTranslation: "english",
-        translateTo: "french",
-      });
+      // setFormState({
+      //   bookName: "",
+      //   authorName: "",
+      //   publishedDate: "",
+      //   category: "",
+      //   price: "",
+      //   bookCover: null,
+      //   pdfFile: null,
+      //   currentTranslation: "english",
+      //   translateTo: "french",
+      // });
       await loadBooks();
+      setPollingBookId(data.book_id);
     } catch (error) {
       console.error("Error uploading book", error);
       toast.error("Unable to upload book.");
@@ -801,7 +899,7 @@ const xmlContent = `<?xml version="1.0"?>
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-12 min-w-0">
+      <main className="mx-auto w-full  px-4 py-8 sm:px-18 sm:py-12 min-w-0">
         <div className="space-y-8">
           <div className="rounded-4xl border border-border/60 bg-surface p-8 shadow-sm">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between min-w-0">
@@ -1001,7 +1099,7 @@ const xmlContent = `<?xml version="1.0"?>
                         No books uploaded yet.
                       </div>
                     ) : (
-                      <div className="grid gap-4 lg:grid-cols-1">
+                      <div className="grid gap-4 lg:grid-cols-2">
                         {books.map((book) => {
                           const stats = bookStats.get(book.book_id) ?? { totalRequests: 0, paidRequests: 0 };
                           return (
@@ -1022,9 +1120,9 @@ const xmlContent = `<?xml version="1.0"?>
                                       <h3 className="text-lg font-semibold truncate">{book.book_name}</h3>
                                       <p className="text-sm text-muted-foreground truncate">{book.author_name}</p>
                                     </div>
-                                    <div className="inline-flex items-center gap-2 rounded-full bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-                                      <Tag className="h-3.5 w-3.5" />
-                                      {book.category ?? "Uncategorized"}
+                                    <div style={{color: book.status === "completed" ? "#10b981" :book.status === "pending" ? "#f59e0b": "red"}} className="inline-flex items-center gap-2 rounded-full bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
+                                      
+                                      {book.status ?? "Uncategorized"}
                                     </div>
                                   </div>
                                   <div className="grid grid-cols-1 gap-3 text-sm text-muted-foreground sm:grid-cols-2 lg:grid-cols-2">
@@ -1085,7 +1183,7 @@ const xmlContent = `<?xml version="1.0"?>
                 </div>
               )}
               {
-                view === "all-books" && isSuperAdmin && (
+                view === "all-books" && !isSuperAdmin && (
                   <BookList
                    allBooks={allBooks}
                    bookStats={bookStats} 
