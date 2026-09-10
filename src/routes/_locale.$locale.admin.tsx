@@ -27,6 +27,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import supported_languages from "../assets/supported_languages.json";
 import { api } from "@/lib/api";
+import { CURRENCY_OPTIONS, detectCurrencyFromLocale } from "@/lib/books";
 import { setDate } from "date-fns";
 import { ro } from "date-fns/locale";
 import {
@@ -124,6 +125,7 @@ function AdminDashboard() {
     publishedDate: "",
     category: "",
     price: "",
+    currency: detectCurrencyFromLocale(),
     bookCover: null as File | null,
     pdfFile: null as File | null,
     currentTranslation: "english",
@@ -383,6 +385,9 @@ function AdminDashboard() {
     formData.append("category", formState.category);
     formData.append("published_date", formState.publishedDate);
     formData.append("price", formState.price);
+    // Book currency is stored alongside the base price so the checkout can auto-detect the
+    // original currency and convert it into the buyer's selected display currency.
+    formData.append("currency", formState.currency);
     formData.append("book_division_type", "full");
     formData.append("pdf_file", formState.pdfFile);
 
@@ -408,6 +413,7 @@ function AdminDashboard() {
         publishedDate: "",
         category: "",
         price: "",
+        currency: detectCurrencyFromLocale(),
         bookCover: null,
         pdfFile: null,
         currentTranslation: "english",
@@ -614,6 +620,22 @@ function AdminDashboard() {
                           placeholder="e.g. 1000"
                           required
                         />
+                      </label>
+                      <label className="grid gap-2 text-sm">
+                        <span>Currency</span>
+                        <select
+                          value={formState.currency}
+                          onChange={(event) =>
+                            setFormState((prev) => ({ ...prev, currency: event.target.value }))
+                          }
+                          className="rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-teal-400"
+                        >
+                          {CURRENCY_OPTIONS.map((currency) => (
+                            <option key={currency} value={currency}>
+                              {currency}
+                            </option>
+                          ))}
+                        </select>
                       </label>
                       <label className="grid gap-2 text-sm">
                         <span>Upload book PDF</span>

@@ -4,7 +4,14 @@ import { toast } from "sonner";
 import { CheckCircle2, Copy, Info,X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { PAYMENT_INFO } from "@/lib/books";
+import {
+  CURRENCY_OPTIONS,
+  PAYMENT_INFO,
+  convertCurrency,
+  detectCurrencyFromLocale,
+  formatCurrencyAmount,
+  normalizeCurrency,
+} from "@/lib/books";
 import { useBooks } from "@/hooks/use-books";
 import { api } from "@/lib/api";
 
@@ -23,6 +30,46 @@ export function PurchaseRequestButton({ bookId, adminId, bookTitle, price, curre
   const [status, setStatus] = useState<Status | null>(null);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  // Keep the chosen currency stable for the modal while still defaulting to the buyer's locale.
+  // This allows the UI to auto-detect the browser locale and gives a clear dropdown override.
+  const normalizedBookCurrency = normalizeCurrency(currency);
+  const [selectedCurrency, setSelectedCurrency] = useState<string>(
+    normalizedBookCurrency || detectCurrencyFromLocale(),
+  );
+
+  // Live rates fetched from backend when the modal is opened. Falls back to the
+  // static convertCurrency() implementation in case the backend call fails.
+  const [rates, setRates] = useState<Record<string, number> | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    // Fetch latest rates from backend endpoint; backend proxies CurrencyAPI and caches results.
+    (async () => {
+      try {
+        const res = await fetch(`${backendUrl}/currency/latest?base=USD`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.rates) setRates(data.rates);
+      } catch (e) {
+        // Ignore errors — we'll fall back to static rates
+        console.error("Failed to load currency rates", e);
+      }
+    })();
+  }, [open, backendUrl]);
+
+  let displayPrice: number;
+  if (
+    rates &&
+    rates[selectedCurrency] !== undefined &&
+    rates[normalizedBookCurrency] !== undefined
+  ) {
+    // Convert price from book currency -> selected currency using provider rates
+    displayPrice = Number(price ?? 0) * (rates[selectedCurrency] / rates[normalizedBookCurrency]);
+  } else {
+    // Fallback to the in-app static conversion table
+    displayPrice = convertCurrency(Number(price ?? 0), normalizedBookCurrency, selectedCurrency);
+  }
+
   console.log("requests",bookRequests)
   useEffect(() => {
     if (!user) return;
@@ -31,6 +78,10 @@ export function PurchaseRequestButton({ bookId, adminId, bookTitle, price, curre
     }
 
   }, [user, bookId, bookRequests]);
+
+  useEffect(() => {
+    setSelectedCurrency(normalizeCurrency(currency) || detectCurrencyFromLocale());
+  }, [currency]);
 
   if (loading) return null;
   
@@ -65,7 +116,7 @@ export function PurchaseRequestButton({ bookId, adminId, bookTitle, price, curre
             this book unlocks automatically on your account.
           </p>
           <p className="mt-2 text-muted-foreground">
-            If you haven't paid yet, send <span className="font-semibold text-foreground">{currency} {price}</span> to{" "}
+            If you haven't paid yet, send <span className="font-semibold text-foreground">{formatCurrencyAmount(displayPrice, selectedCurrency)}</span> to{" "}
             <span className="font-semibold text-foreground">{PAYMENT_INFO.number}</span> ({PAYMENT_INFO.provider})
             and use <span className="font-semibold text-foreground">{user.email}</span> as the reference.
           </p>
@@ -128,7 +179,7 @@ export function PurchaseRequestButton({ bookId, adminId, bookTitle, price, curre
         onClick={() => setOpen(true)}
         className="mt-2 w-full rounded-full bg-gradient-teal px-5 py-3 text-sm font-semibold text-primary-foreground shadow-glow transition hover:opacity-90"
       >
-        {status === "declined" ? `Order again — ${currency} ${price}` : `Order this book — ${currency} ${price}`}
+        {status === "declined" ? `Order again — ${formatCurrencyAmount(displayPrice, selectedCurrency)}` : `Order this book — ${formatCurrencyAmount(displayPrice, selectedCurrency)}`}
       </button>
     );
   }
@@ -160,10 +211,42 @@ export function PurchaseRequestButton({ bookId, adminId, bookTitle, price, curre
         </div>
 
         {/* Summary */}
-        <div className="mt-4 flex items-center justify-between rounded-xl border border-border/60 bg-background/40 px-4 py-3">
-          <div className="text-muted-foreground">Amount due</div>
-          <div className="font-display text-xl text-foreground">
-            {currency} {price}
+        <div className="mt-4 space-y-3">
+          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-background/40 px-4 py-3">
+            <div className="text-muted-foreground">Amount due</div>
+            <div className="font-display text-xl text-foreground">
+              {formatCurrencyAmount(displayPrice, selectedCurrency)}
+            </div>
+          </div>
+
+          <div className="space-y-2 rounded-xl border border-border/60 bg-background/40 px-4 py-3">
+            <label htmlFor="currency-select" className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+              Currency
+            </label>
+            <div className="flex items-center gap-3">
+              <select
+                id="currency-select"
+                value={selectedCurrency}
+                onChange={(event) => setSelectedCurrency(event.target.value)}
+                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none ring-0 focus:border-teal-bright"
+                aria-label="Select payment currency"
+              >
+                {Array.from(
+                  new Set([
+                    ...(currency ? [normalizeCurrency(currency)] : []),
+                    detectCurrencyFromLocale(),
+                    ...CURRENCY_OPTIONS,
+                  ]),
+                ).map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              <span className="whitespace-nowrap text-[10px] uppercase tracking-widest text-muted-foreground">
+                Auto
+              </span>
+            </div>
           </div>
         </div>
 
@@ -171,12 +254,16 @@ export function PurchaseRequestButton({ bookId, adminId, bookTitle, price, curre
         <ol className="mt-5 space-y-4">
           <Step
             n={1}
-            title={`Send ${currency} ${price} via ${PAYMENT_INFO.provider}`}
+            title={`Send ${formatCurrencyAmount(displayPrice, selectedCurrency)} via ${PAYMENT_INFO.provider}`}
             body={
               <div className="mt-2 space-y-2">
                 <Row label="Number" value={PAYMENT_INFO.number} onCopy={() => copy(PAYMENT_INFO.number)} />
                 <Row label="Account name" value={PAYMENT_INFO.accountName} />
-                <Row label="Amount" value={`${currency} ${price}`} onCopy={() => copy(String(price))} />
+                <Row
+                  label="Amount"
+                  value={formatCurrencyAmount(displayPrice, selectedCurrency)}
+                  onCopy={() => copy(String(displayPrice))}
+                />
               </div>
             }
           />
