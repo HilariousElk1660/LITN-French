@@ -42,13 +42,23 @@ type LibraryEntry = {
 function Home() {
   const { user, loading, backendUrl } = useAuth();
   const { bookRequests, readersBooks } = useBooks();
-  const [books, setBooks] = useState<Book[]>([]);
-  const [loadingBooks, setLoadingBooks] = useState(true);
+  const [books, setBooks] = useState<Book[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("litn_all_books_mapped");
+        return cached ? JSON.parse(cached) : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+  const [loadingBooks, setLoadingBooks] = useState(books.length === 0);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBooks = async () => {
-      setLoadingBooks(true);
+      if (books.length === 0) setLoadingBooks(true);
       setError(null);
       try {
         const base = backendUrl;
@@ -72,9 +82,26 @@ function Home() {
           synopsis: item.synopsis ?? item.description ?? "",
         }));
         setBooks(mappedBooks);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("litn_all_books_mapped", JSON.stringify(mappedBooks));
+        }
       } catch (err) {
-        console.error(err);
-        setError(err instanceof Error ? err.message : "Unable to load titles.");
+        console.error("Fetch books error:", err);
+        // If we have cached books from localStorage, do not block UI with error screen
+        const cached = typeof window !== "undefined" ? localStorage.getItem("litn_all_books_mapped") : null;
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached);
+            if (parsed && parsed.length > 0) {
+              setBooks(parsed);
+              setError(null);
+              return;
+            }
+          } catch {}
+        }
+        if (books.length === 0) {
+          setError(err instanceof Error ? err.message : "Unable to load titles.");
+        }
       } finally {
         setLoadingBooks(false);
       }
@@ -113,7 +140,7 @@ function Home() {
     <div className="min-h-screen">
       <SiteHeader />
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-12">
+      <main className="mx-auto px-8 py-8 sm:px-18 lg:py-12">
         {/* Welcome Section */}
         <section className="relative overflow-hidden rounded-3xl border border-border/60 bg-surface p-6 sm:p-8 lg:p-12 mb-8">
           <div className="absolute inset-0 -z-10 bg-teal" />
@@ -279,8 +306,8 @@ function Home() {
           ) : error ? (
             <p className="text-center text-red-500 py-10">Error loading books: {error}</p>
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-              {books.slice(0, 5).map((b) => (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {books.slice(0, 10).map((b) => (
                 <BookCard key={b.id} book={b} />
               ))}
             </div>
