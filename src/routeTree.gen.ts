@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LocaleLocaleRouteImport } from './routes/_locale.$locale'
 import { Route as LocaleLocaleIndexRouteImport } from './routes/_locale.$locale.index'
 import { Route as LocaleLocaleSignupRouteImport } from './routes/_locale.$locale.signup'
+import { Route as LocaleLocaleResetPasswordRouteImport } from './routes/_locale.$locale.reset-password'
 import { Route as LocaleLocaleProfileRouteImport } from './routes/_locale.$locale.profile'
 import { Route as LocaleLocaleLoginRouteImport } from './routes/_locale.$locale.login'
 import { Route as LocaleLocaleHomeRouteImport } from './routes/_locale.$locale.home'
+import { Route as LocaleLocaleForgotPasswordRouteImport } from './routes/_locale.$locale.forgot-password'
 import { Route as LocaleLocaleCatalogueRouteImport } from './routes/_locale.$locale.catalogue'
 import { Route as LocaleLocaleAdminRouteImport } from './routes/_locale.$locale.admin'
 import { Route as LocaleLocaleReadIdRouteImport } from './routes/_locale.$locale.read.$id'
@@ -36,6 +38,12 @@ const LocaleLocaleSignupRoute = LocaleLocaleSignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => LocaleLocaleRoute,
 } as any)
+const LocaleLocaleResetPasswordRoute =
+  LocaleLocaleResetPasswordRouteImport.update({
+    id: '/reset-password',
+    path: '/reset-password',
+    getParentRoute: () => LocaleLocaleRoute,
+  } as any)
 const LocaleLocaleProfileRoute = LocaleLocaleProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -51,6 +59,12 @@ const LocaleLocaleHomeRoute = LocaleLocaleHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => LocaleLocaleRoute,
 } as any)
+const LocaleLocaleForgotPasswordRoute =
+  LocaleLocaleForgotPasswordRouteImport.update({
+    id: '/forgot-password',
+    path: '/forgot-password',
+    getParentRoute: () => LocaleLocaleRoute,
+  } as any)
 const LocaleLocaleCatalogueRoute = LocaleLocaleCatalogueRouteImport.update({
   id: '/catalogue',
   path: '/catalogue',
@@ -81,9 +95,11 @@ export interface FileRoutesByFullPath {
   '/$locale': typeof LocaleLocaleRouteWithChildren
   '/$locale/admin': typeof LocaleLocaleAdminRoute
   '/$locale/catalogue': typeof LocaleLocaleCatalogueRoute
+  '/$locale/forgot-password': typeof LocaleLocaleForgotPasswordRoute
   '/$locale/home': typeof LocaleLocaleHomeRoute
   '/$locale/login': typeof LocaleLocaleLoginRoute
   '/$locale/profile': typeof LocaleLocaleProfileRoute
+  '/$locale/reset-password': typeof LocaleLocaleResetPasswordRoute
   '/$locale/signup': typeof LocaleLocaleSignupRoute
   '/$locale/': typeof LocaleLocaleIndexRoute
   '/$locale/author/$id': typeof LocaleLocaleAuthorIdRoute
@@ -93,9 +109,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/$locale/admin': typeof LocaleLocaleAdminRoute
   '/$locale/catalogue': typeof LocaleLocaleCatalogueRoute
+  '/$locale/forgot-password': typeof LocaleLocaleForgotPasswordRoute
   '/$locale/home': typeof LocaleLocaleHomeRoute
   '/$locale/login': typeof LocaleLocaleLoginRoute
   '/$locale/profile': typeof LocaleLocaleProfileRoute
+  '/$locale/reset-password': typeof LocaleLocaleResetPasswordRoute
   '/$locale/signup': typeof LocaleLocaleSignupRoute
   '/$locale': typeof LocaleLocaleIndexRoute
   '/$locale/author/$id': typeof LocaleLocaleAuthorIdRoute
@@ -107,9 +125,11 @@ export interface FileRoutesById {
   '/_locale/$locale': typeof LocaleLocaleRouteWithChildren
   '/_locale/$locale/admin': typeof LocaleLocaleAdminRoute
   '/_locale/$locale/catalogue': typeof LocaleLocaleCatalogueRoute
+  '/_locale/$locale/forgot-password': typeof LocaleLocaleForgotPasswordRoute
   '/_locale/$locale/home': typeof LocaleLocaleHomeRoute
   '/_locale/$locale/login': typeof LocaleLocaleLoginRoute
   '/_locale/$locale/profile': typeof LocaleLocaleProfileRoute
+  '/_locale/$locale/reset-password': typeof LocaleLocaleResetPasswordRoute
   '/_locale/$locale/signup': typeof LocaleLocaleSignupRoute
   '/_locale/$locale/': typeof LocaleLocaleIndexRoute
   '/_locale/$locale/author/$id': typeof LocaleLocaleAuthorIdRoute
@@ -122,9 +142,11 @@ export interface FileRouteTypes {
     | '/$locale'
     | '/$locale/admin'
     | '/$locale/catalogue'
+    | '/$locale/forgot-password'
     | '/$locale/home'
     | '/$locale/login'
     | '/$locale/profile'
+    | '/$locale/reset-password'
     | '/$locale/signup'
     | '/$locale/'
     | '/$locale/author/$id'
@@ -134,9 +156,11 @@ export interface FileRouteTypes {
   to:
     | '/$locale/admin'
     | '/$locale/catalogue'
+    | '/$locale/forgot-password'
     | '/$locale/home'
     | '/$locale/login'
     | '/$locale/profile'
+    | '/$locale/reset-password'
     | '/$locale/signup'
     | '/$locale'
     | '/$locale/author/$id'
@@ -147,9 +171,11 @@ export interface FileRouteTypes {
     | '/_locale/$locale'
     | '/_locale/$locale/admin'
     | '/_locale/$locale/catalogue'
+    | '/_locale/$locale/forgot-password'
     | '/_locale/$locale/home'
     | '/_locale/$locale/login'
     | '/_locale/$locale/profile'
+    | '/_locale/$locale/reset-password'
     | '/_locale/$locale/signup'
     | '/_locale/$locale/'
     | '/_locale/$locale/author/$id'
@@ -184,6 +210,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleLocaleSignupRouteImport
       parentRoute: typeof LocaleLocaleRoute
     }
+    '/_locale/$locale/reset-password': {
+      id: '/_locale/$locale/reset-password'
+      path: '/reset-password'
+      fullPath: '/$locale/reset-password'
+      preLoaderRoute: typeof LocaleLocaleResetPasswordRouteImport
+      parentRoute: typeof LocaleLocaleRoute
+    }
     '/_locale/$locale/profile': {
       id: '/_locale/$locale/profile'
       path: '/profile'
@@ -203,6 +236,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/$locale/home'
       preLoaderRoute: typeof LocaleLocaleHomeRouteImport
+      parentRoute: typeof LocaleLocaleRoute
+    }
+    '/_locale/$locale/forgot-password': {
+      id: '/_locale/$locale/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/$locale/forgot-password'
+      preLoaderRoute: typeof LocaleLocaleForgotPasswordRouteImport
       parentRoute: typeof LocaleLocaleRoute
     }
     '/_locale/$locale/catalogue': {
@@ -246,9 +286,11 @@ declare module '@tanstack/react-router' {
 interface LocaleLocaleRouteChildren {
   LocaleLocaleAdminRoute: typeof LocaleLocaleAdminRoute
   LocaleLocaleCatalogueRoute: typeof LocaleLocaleCatalogueRoute
+  LocaleLocaleForgotPasswordRoute: typeof LocaleLocaleForgotPasswordRoute
   LocaleLocaleHomeRoute: typeof LocaleLocaleHomeRoute
   LocaleLocaleLoginRoute: typeof LocaleLocaleLoginRoute
   LocaleLocaleProfileRoute: typeof LocaleLocaleProfileRoute
+  LocaleLocaleResetPasswordRoute: typeof LocaleLocaleResetPasswordRoute
   LocaleLocaleSignupRoute: typeof LocaleLocaleSignupRoute
   LocaleLocaleIndexRoute: typeof LocaleLocaleIndexRoute
   LocaleLocaleAuthorIdRoute: typeof LocaleLocaleAuthorIdRoute
@@ -259,9 +301,11 @@ interface LocaleLocaleRouteChildren {
 const LocaleLocaleRouteChildren: LocaleLocaleRouteChildren = {
   LocaleLocaleAdminRoute: LocaleLocaleAdminRoute,
   LocaleLocaleCatalogueRoute: LocaleLocaleCatalogueRoute,
+  LocaleLocaleForgotPasswordRoute: LocaleLocaleForgotPasswordRoute,
   LocaleLocaleHomeRoute: LocaleLocaleHomeRoute,
   LocaleLocaleLoginRoute: LocaleLocaleLoginRoute,
   LocaleLocaleProfileRoute: LocaleLocaleProfileRoute,
+  LocaleLocaleResetPasswordRoute: LocaleLocaleResetPasswordRoute,
   LocaleLocaleSignupRoute: LocaleLocaleSignupRoute,
   LocaleLocaleIndexRoute: LocaleLocaleIndexRoute,
   LocaleLocaleAuthorIdRoute: LocaleLocaleAuthorIdRoute,
