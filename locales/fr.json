@@ -70,5 +70,28 @@
     "search": "Rechercher",
     "unsupportedLocale": "Cette langue n'est pas encore prise en charge. Redirection vers la langue par défaut.",
     "languageSwitcher": "Langue"
+  ,
+  "welcomeSubtitle": "Suivez vos lectures actives, explorez des documents cliniques à haut rendement et accédez à toutes vos ressources d'étude en un seul endroit.",
+  "colleagueFallback": "Collègue",
+  "featuredHeading": "Études cliniques en vedette",
+  "featuredSubtitle": "Titres d'anatomie, de pharmacologie et de formation clinique fortement recommandés.",
+  "errorLoadingBooks": "Erreur lors du chargement des livres : {error}",
+  "pageOf": "Page {current} sur {total}"
+  ,
+  "logout": "Se déconnecter",
+  "myAccount": "Mon compte",
+  "navigate": "Navigation",
+  "quickLinks": "Liens rapides et actions du compte",
+  "serialised": "Sérialisé",
+  "newReleases": "Nouveautés",
+  "alphaRelease": "Version Alpha",
+  "all": "Tous",
+  "complete": "Complet",
+  "topRated": "Mieux notés",
+  "mostChapters": "Plus de chapitres",
+  "sortAZ": "A–Z",
+  "loadingCatalogue": "Chargement du catalogue…",
+  "unableToLoadBooks": "Impossible de charger les livres.",
+  "noMatchingBooks": "Aucun livre ne correspond à ces filtres."
   }
 }

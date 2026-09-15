@@ -1,5 +1,5 @@
-import { createFileRoute, Link, notFound, useRouter, useCanGoBack, reactUse } from "@tanstack/react-router";
 import { useEffect, useState, Suspense, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 // import { getBook, sampleChapter } from "@/lib/books";
 import logo from "@/assets/litn-logo.asset.json";
 import { useAuth } from "@/hooks/use-auth";
@@ -10,32 +10,16 @@ import { HTMLViewer } from "@/components/html-viewer";
 import html from "@/assets/html.txt"
 import { useBooks } from "@/hooks/use-books";
 import { read } from "fs";
-
-export const Route = createFileRoute("/_locale/$locale/read/$id")({
-  ssr: false,
-  loader: ({ params }) => {
-   return true
-  },
-  // head: ({ loaderData }) => ({
-  //   meta: loaderData ? [{ title: `Reading — ${loaderData.book.title}` }] : [],
-  // }),
-  notFoundComponent: () => <div className="p-10">Not found</div>,
-  errorComponent: ({ reset }) => <button onClick={reset}>retry</button>,
-  component: Reader,
-});
+import supported_languages from '@/assets/supported_languages.json'
 
 function BackButton({ bookId,readerContainer }: { bookId: string, readerContainer: any, initialStyling: any }) {
-  const router = useRouter();
-  const canGoBack = useCanGoBack();
+  const navigate = useNavigate();
+  const { locale, id } = useParams();
   const {readingSettings} = useBooks();
   const {backendUrl:api} = useAuth()
 
   const handleBack = () => {
-    if (canGoBack) {
-      router.history.back();
-    } else {
-      router.navigate({ to: "/book/$id", params: { id: bookId } });
-    }
+    navigate(-1);
   };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [fontSize, setFontSize] = useState<number>(readingSettings?.fontSize || 16);
@@ -90,16 +74,16 @@ function BackButton({ bookId,readerContainer }: { bookId: string, readerContaine
       },
       body: JSON.stringify({
         theme,
-        fontSize: `${fontSize}px`,
+        fontSize: fontSize,
         fontFamily,
-        textColor,
+        textColor, 
         bgColor
       })
     });
   }
 
   useEffect(()=>{
-    if (isOpen === false)
+    if (isOpen === false && readingSettings)
     saveSettings();
 
   },[isOpen]);
@@ -108,7 +92,7 @@ function BackButton({ bookId,readerContainer }: { bookId: string, readerContaine
   useEffect(() => {
     if (readerContainer.current) {
       const cont = readerContainer.current;
-      
+       
       // Assign properties directly to prevent invalid strings from silently failing
       cont.style.fontSize = `${fontSize}px`;
       cont.style.color = textColor;
@@ -244,6 +228,8 @@ function BackButton({ bookId,readerContainer }: { bookId: string, readerContaine
 
 function AccessGate({ bookId, children }: { bookId: string; children: React.ReactNode }) {
   const { user, isAdmin, loading } = useAuth();
+  const navigate = useNavigate();
+  const { locale } = useParams();
   const [state, setState] = useState<"checking" | "granted" | "denied">("checking");
 
   useEffect(() => {
@@ -262,13 +248,12 @@ function AccessGate({ bookId, children }: { bookId: string; children: React.Reac
             ? "Your purchase request must be approved before you can read this book."
             : "Sign in and request access to read this book."}
         </p>
-        <Link
-          to="/book/$id"
-          params={{ id: bookId }}
+        <button
+          onClick={() => navigate(`/${locale}/book/${bookId}`)}
           className="rounded-full bg-gradient-teal px-5 py-3 text-sm font-medium text-primary-foreground"
         >
           Back to book
-        </Link>
+        </button>
       </div>
     );
   }
@@ -278,10 +263,12 @@ function AccessGate({ bookId, children }: { bookId: string; children: React.Reac
 function Reader() {
   const [book, setBook] = useState(null);
   const [pageStoppedAt, setPageStoppedAt] = useState(0);
-  const { id } = Route.useParams();
-  const { chapter } = Route.useSearch()
+  const { id } = useParams();
   const { user, loading, backendUrl } = useAuth();
   const readerContainer = useRef<any>(null);
+
+
+
   
  
   const fetchBook = async (bookId: string) => {
@@ -304,7 +291,7 @@ function Reader() {
       if (res2.ok) {
         const data = await res2.json();
         // let chapPage = chapter? JSON.parse(bookData.book_divisions).find((book:any) => book.start_page == chapter):0
-        let page = chapter? Number(chapter): data.current_page !== undefined? Number(data.current_page):1
+        let page = data.current_page !== undefined? Number(data.current_page):1
         console.log("page",page)
         setPageStoppedAt(page)
       }
@@ -316,14 +303,14 @@ function Reader() {
   };
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && id) {
       fetchBook(id);
     }
   }, [id, loading, user?.user_id, backendUrl]);
   return (
-    <AccessGate bookId={"d"}>
-      <BackButton bookId={id} readerContainer={readerContainer} />
-      <ReaderInner book={book} pageStoppedAt={pageStoppedAt} book_id={id} container={readerContainer} />
+    <AccessGate bookId={id || ""}>
+      <BackButton bookId={id || ""} readerContainer={readerContainer} />
+      <ReaderInner book={book} pageStoppedAt={pageStoppedAt} book_id={id || ""} container={readerContainer} />
       
     </AccessGate>
   );
@@ -334,10 +321,9 @@ function ReaderInner({ book, pageStoppedAt, book_id, container }: { book: any; p
   const [mounted, setMounted] = useState(false);
   const [content, setContent] = useState('');
   const {readingSettings} = useBooks();
-  console.log("STYLING", readingSettings);
+  const {locale} = useParams();
+  const lang = supported_languages[locale]
   const styling = `<style>
-
- 
   .page{
   border-bottom: 2px solid ${container.current?.style.color || 'teal'};
   padding: 60px 0;
@@ -349,15 +335,29 @@ function ReaderInner({ book, pageStoppedAt, book_id, container }: { book: any; p
   img{
 filter: sepia(${readingSettings?.theme === "Sepia" ? "100%" : "0%"}) brightness(${readingSettings?.theme === "Dark" ? "60%" : "100%"});
   }
+// .page {
+//   display: grid;
+//   grid-template-columns: 1fr;
+//   justify-items: center; /* Centers child elements horizontally within the grid */
+//   align-items: center;   /* Centers child elements vertically (if container has height) */
+
+// }
+
+[data-page-id="0"] {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center; /* Centers child elements horizontally within the grid */
+  align-items: center;   /* Centers child elements vertically (if container has height) */
+  text-align: center;    /* Centers inline text inside child elements */
+}
 
   </style>`;
 
   useEffect(() => {
     if (!readingSettings.theme || !book) return;
-  
+    console.log(readingSettings)
     setMounted(true);
-    console.log("PDF FILE URL", book.pdf_file_url.french);
-    fetch(book.pdf_file_url.french)
+    fetch(book.pdf_file_url[lang])
       .then((res) => res.text())
       .then((data) => setContent(data +  styling));
 
@@ -370,9 +370,11 @@ filter: sepia(${readingSettings?.theme === "Sepia" ? "100%" : "0%"}) brightness(
   
 
   return (
-    <div style={{width: "99vw", display: "flex", justifyContent: "center",fontFamily: readingSettings?.fontFamily,fontSize: readingSettings?.fontSize, backgroundColor:readingSettings?.bgColor, color:readingSettings?.textColor}}ref={container}>
+    <div style={{width: "99vw", display: "flex", justifyContent: "center",fontFamily: readingSettings?.fontFamily,fontSize: `${readingSettings?.fontSize}px`, backgroundColor:readingSettings?.bgColor, color:readingSettings?.textColor}}ref={container}>
       <HTMLViewer htmlString={content}/>
 
     </div>
   )
 }
+
+export default Reader;

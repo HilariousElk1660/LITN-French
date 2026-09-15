@@ -1,17 +1,12 @@
-import { createFileRoute, useNavigate, useLocation } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import { LocaleLink } from "@/components/locale-link";
 import { api, type AuthResponse } from "@/lib/api";
 import { getLocaleFromPath, getTranslations, withLocalePath } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_locale/$locale/signup")({
-  head: () => ({ meta: [{ title: "Sign up — LITN" }] }),
-  component: SignupPage,
-});
-
-export function SignupPage() {
+export default function SignupPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const locale = getLocaleFromPath(location.pathname);
@@ -32,7 +27,7 @@ export function SignupPage() {
       });
       api.saveSession(auth);
       toast.success("Account created. Welcome to LITN.");
-      navigate({ to: withLocalePath("/login", locale) });
+      navigate(withLocalePath('/login', locale));
     } catch (err: any) {
       toast.error(err.message);
     } finally {

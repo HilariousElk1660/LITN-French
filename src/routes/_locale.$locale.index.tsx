@@ -1,35 +1,16 @@
-import { createFileRoute, Link, useLocation, useRouter } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import Link from '@/components/route-link'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { BookOpen, ShieldCheck, Stethoscope } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { getLocaleFromPath, getTranslations, withLocalePath } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_locale/$locale/")({
-  head: () => ({
-    meta: [
-      { title: "LITN — Medical training, made readable." },
-      {
-        name: "description",
-        content:
-          "LITN is a focused medical-training library: exam-oriented anatomy, pharmacology, emergency medicine and clinical review — sign in to browse the full catalogue.",
-      },
-      { property: "og:title", content: "LITN — Medical training, made readable." },
-      {
-        property: "og:description",
-        content:
-          "A focused medical-training library. Sign in to browse anatomy, pharmacology, emergency medicine and clinical review titles.",
-      },
-    ],
-  }),
-  component: IndexPage,
-});
-
-export function IndexPage() {
+export default function IndexPage() {
   const { user } = useAuth();
   const location = useLocation();
-  const router = useRouter();
+  const navigate = useNavigate();
   const locale = getLocaleFromPath(location.pathname);
   const [translations, setTranslations] = useState<Record<string, string>>({});
 
@@ -37,9 +18,9 @@ export function IndexPage() {
 
   useEffect(() => {
     if (user?.email) {
-      router.navigate({ to: withLocalePath("/home", locale), replace: true });
+      navigate(withLocalePath('/home', locale), { replace: true });
     }
-  }, [user, locale, router]);
+  }, [user, locale, navigate]);
 
   useEffect(() => {
     let active = true;

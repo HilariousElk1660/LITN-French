@@ -1,22 +1,18 @@
-import { createFileRoute, useNavigate, useLocation } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
+import { useNavigate, useLocation, useParams } from 'react-router-dom'
+import Link from '@/components/route-link'
+import { useState, useEffect } from 'react'
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import { LocaleLink } from "@/components/locale-link";
 import { api, type AuthResponse } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
 import { getLocaleFromPath, getTranslations, withLocalePath } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_locale/$locale/login")({
-  head: () => ({ meta: [{ title: "Sign in — LITN" }] }),
-  component: LoginPage,
-});
-
-export function LoginPage() {
+export default function LoginPage() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const locale = getLocaleFromPath(location.pathname);
+  const location = useLocation(); 
+  const { locale } = useParams();
   const { refresh } = useAuth();
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [email, setEmail] = useState("");
@@ -32,7 +28,7 @@ export function LoginPage() {
       api.saveSession(auth);
       refresh();
       toast.success("Welcome back.");
-      navigate({ to: withLocalePath("/", locale) });
+      navigate(`/${locale}/home`);
     } catch (err: any) {
       toast.error(err.message);
     } finally {
@@ -99,7 +95,7 @@ export function LoginPage() {
             </div>
             <div className="flex justify-end">
               <LocaleLink
-                to="/forgot-password"
+                to={`/forgot-password`}
                 className="text-sm font-medium text-teal-bright hover:underline"
               >
                 {translations["common.forgotPassword"] ?? "Forgot Password?"}

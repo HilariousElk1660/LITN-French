@@ -1,8 +1,12 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "react-router-dom";
 import type { Book } from "@/lib/books";
 import { Bookmark } from 'lucide-react';
+import { getLocaleFromPath, withLocalePath } from "@/lib/i18n";
 
-export function BookCard({ book }: { book: Book }) {
+export function BookCard({ book, onSelectBook }: { book: Book; onSelectBook?: (book: Book) => void }) {
+  const location = useLocation();
+  const locale = getLocaleFromPath(location.pathname);
+  
   const getGenreColor = (genre: string) => {
   switch (genre.toLowerCase()) {
     case 'clinical review':
@@ -19,8 +23,7 @@ export function BookCard({ book }: { book: Book }) {
 };
   return (
     <Link
-      to="/book/$id"
-      params={{ id: book.id }}
+      to={withLocalePath(`/book/${book.id}`, locale)}
       className="group block"
     >
     <div

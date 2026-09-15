@@ -1,10 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Shield, Crown, BookOpen, CheckCircle2, Circle } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { useAuth } from "@/hooks/use-auth";
 import { api, type AuthResponse } from "@/lib/api";
+import { getLocaleFromPath, withLocalePath } from "@/lib/i18n";
 
 type LibraryEntry = {
   reader_book_id: string;
@@ -23,13 +24,10 @@ type LibraryEntry = {
   last_opened_on: string | null;
 };
 
-export const Route = createFileRoute("/_locale/$locale/profile")({
-  head: () => ({ meta: [{ title: "Your profile — LITN" }] }),
-  component: ProfilePage,
-});
-
-export function ProfilePage() {
+export default function ProfilePage() {
   const { user, isAdmin, isSuperAdmin, loading: authLoading, refresh } = useAuth();
+  const location = useLocation();
+  const locale = getLocaleFromPath(location.pathname);
 
   const [fullname, setFullname] = useState(user?.fullname ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
@@ -206,8 +204,7 @@ export function ProfilePage() {
                 return (
                   <li key={entry.reader_book_id}>
                     <Link
-                      to="/read/$id"
-                      params={{ id: entry.book_id }}
+                      to={withLocalePath(`/read/${entry.book_id}`, locale)}
                       // search={{
                       //   page: entry.current_page,
                       //   chapter: entry.current_chapter_index,

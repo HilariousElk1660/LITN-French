@@ -1,14 +1,5 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  Outlet,
-  Link,
-  createRootRouteWithContext,
-  useLocation,
-  useRouter,
-  HeadContent,
-  Scripts,
-  redirect,
-} from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Outlet, Link, useLocation } from 'react-router-dom'
 import favicon from "@/assets/favicon.ico";
 import { useEffect, type ReactNode } from "react";
 
@@ -50,7 +41,6 @@ function NotFoundComponent() {
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
-  const router = useRouter();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
@@ -67,8 +57,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
-              router.invalidate();
+              // reload the page and attempt a reset
               reset();
+              if (typeof window !== 'undefined') window.location.reload();
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
@@ -109,114 +100,25 @@ function getLocaleRedirectTarget(pathname: string) {
   return withLocalePath(trimmed, resolvePreferredLocale());
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  beforeLoad: ({ location }) => {
-    const redirectTarget = getLocaleRedirectTarget(location.pathname);
-    if (redirectTarget && redirectTarget !== location.pathname) {
-      throw redirect({ to: redirectTarget, replace: true });
-    }
-
-    const locale = getLocaleFromPath(location.pathname);
-    const canonicalPath = stripLocaleFromPath(location.pathname) || "/";
-
-    // Expose what `head` needs, since `head` doesn't receive `location` itself.
-    return {
-      locale,
-      canonicalPath,
-    };
-  },
-  head: ({ match }) => {
-    const { locale, canonicalPath } = match.context;
-    const origin = getCanonicalOrigin();
-    const canonicalHref = `${origin}${withLocalePath(canonicalPath, locale)}`;
-
-    return {
-      meta: [
-        { charSet: "utf-8" },
-        { name: "viewport", content: "width=device-width, initial-scale=1" },
-        { title: "LITN — Read together. Meet the authors." },
-        {
-          name: "description",
-          content:
-            "Community-first reading platform with serialised chapters, book rooms, and direct access to authors.",
-        },
-        { name: "theme-color", content: "#132028" },
-        { name: "mobile-web-app-capable", content: "yes" },
-        { name: "apple-mobile-web-app-capable", content: "yes" },
-        { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-        { name: "apple-mobile-web-app-title", content: "LITN" },
-        { property: "og:title", content: "LITN" },
-        { property: "og:description", content: "Read together. Meet the authors." },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-      links: [
-        { rel: "stylesheet", href: appCss },
-        { rel: "icon", href: favicon, type: "image/x-icon" },
-        { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
-        { rel: "preconnect", href: "https://fonts.googleapis.com" },
-        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-        {
-          rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap",
-        },
-        ...SUPPORTED_LOCALES.map((supportedLocale) => ({
-          rel: "alternate",
-          hrefLang: supportedLocale,
-          href: `${origin}${withLocalePath(canonicalPath, supportedLocale)}`,
-        })),
-        { rel: "alternate", hrefLang: "x-default", href: `${origin}${withLocalePath(canonicalPath, DEFAULT_LOCALE)}` },
-        { rel: "canonical", href: canonicalHref },
-        { rel: 'manifest', href: '/manifest.webmanifest' },
-      ],
-    };
-  },
-  shellComponent: RootShell,
-  component: RootComponent,
-  notFoundComponent: NotFoundComponent,
-  errorComponent: ErrorComponent,
-});
-
-function RootShell({ children }: { children: ReactNode }) {
-  const location = useLocation();
-  const locale = getLocaleFromPath(location.pathname);
-
-  return (
-    <html lang={locale}>
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
+// Root layout component used by React Router
+export default function RootLayout() {
+  // We no longer use TanStack route lifecycle here. The locale redirect
+  // will be handled at the router level or in the entry route.
+  return <RootComponent />
 }
 
 function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
-    useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      import("virtual:pwa-register")
-        .then(({ registerSW }) => {
-          registerSW({ immediate: true });
-        })
-        .catch((error) => {
-          console.error("Service worker registration failed", error);
-        });
-    }
-  }, []);
+  const queryClient = new QueryClient()
 
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BooksProvider>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          {/* Required: nested routes render here. */}
           <Outlet />
           <Toaster />
         </BooksProvider>
       </AuthProvider>
     </QueryClientProvider>
-  );
+  )
 }

@@ -1,9 +1,5 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { Outlet } from 'react-router-dom'
 
-export const Route = createFileRoute("/_locale/$locale")({
-  component: LocaleLayout,
-});
-
-function LocaleLayout() {
-  return <Outlet />;
+export default function LocaleLayout() {
+  return <Outlet />
 }

@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation } from "react-router-dom";
 import { forwardRef, type AnchorHTMLAttributes } from "react";
 import { getLocaleFromPath, type SupportedLocale, withLocalePath } from "@/lib/i18n";
 
@@ -15,5 +15,5 @@ export const LocaleLink = forwardRef<HTMLAnchorElement, LocaleLinkProps>(functio
   const currentLocale = locale ?? getLocaleFromPath(location.pathname);
   const target = to.startsWith("/") ? withLocalePath(to, currentLocale) : to;
 
-  return <Link ref={ref} to={target as any} {...(props as any)} />;
+  return <Link ref={ref} to={target} {...props} />;
 });

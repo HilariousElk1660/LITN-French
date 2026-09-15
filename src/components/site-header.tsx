@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useRouter } from "@tanstack/react-router";
+import { Link, useNavigate } from "react-router-dom";
+import { useLocation } from 'react-router-dom'
 import logo from "@/assets/logo1.png";
 import { useAuth } from "@/hooks/use-auth";
 import { Shield, Crown, ChevronDown, LogOut, User, Menu, X } from "lucide-react";
@@ -14,16 +15,18 @@ import {
 } from "@/lib/i18n";
 
 function LanguageSwitcher() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const location = useLocation();
   const currentLocale = getLocaleFromPath(location.pathname);
+  const {setLocale} = useAuth()
 
   const handleChange = (locale: string) => {
     const next = withLocalePath(location.pathname, locale as (typeof SUPPORTED_LOCALES)[number]);
     setStoredLocale(locale as (typeof SUPPORTED_LOCALES)[number]);
-    router.navigate({ to: next, replace: true });
+    setLocale(locale as (typeof SUPPORTED_LOCALES)[number]);
+    navigate(next, { replace: true });
   };
-
+  
   return (
     <label className="flex items-center gap-2 rounded-full border border-border/60 bg-background/60 px-3 py-1.5 text-xs text-muted-foreground">
       <span className="sr-only">Language</span>
@@ -34,7 +37,7 @@ function LanguageSwitcher() {
         aria-label="Language"
       >
         {SUPPORTED_LOCALES.map((locale) => (
-          <option key={locale} value={locale}>
+          <option className="bg-background/70" key={locale} value={locale}>
             {locale.toUpperCase()}
           </option>
         ))}
@@ -44,7 +47,7 @@ function LanguageSwitcher() {
 }
 
 export function SiteHeader() {
-  const { user, isAdmin, isSuperAdmin, signOut, loading } = useAuth();
+  const { user, isAdmin, isSuperAdmin, signOut, loading,setLocale } = useAuth();
   const location = useLocation();
   const locale = getLocaleFromPath(location.pathname);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -107,19 +110,19 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex w-full min-h-16 flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-18">
-        <Link to="/" className="flex items-center gap-3">
+        <Link to={withLocalePath("/", locale)} className="flex items-center gap-3">
           <img src={logo} alt="" className="h-12 w-12 rounded-md object-contain sm:h-[90px] sm:w-[90px]" />
         </Link>
 
         <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-          <Link to={withLocalePath("/", locale)} className="transition-colors hover:text-foreground" activeOptions={{ exact: true }} activeProps={{ className: "text-foreground" }}>
+          <Link to={withLocalePath("/", locale)} className="transition-colors hover:text-foreground">
             {translations["common.home"] ?? "Home"}
           </Link>
-          <Link to={withLocalePath("/catalogue", locale)} className="transition-colors hover:text-foreground" activeProps={{ className: "text-foreground" }}>
+          <Link to={withLocalePath("/catalogue", locale)} className="transition-colors hover:text-foreground">
             {translations["common.catalogue"] ?? "Catalogue"}
           </Link>
           {isAdmin && (
-            <Link to={withLocalePath("/admin", locale)} className="text-teal-bright transition-colors hover:text-foreground" activeProps={{ className: "text-foreground" }}>
+            <Link to={withLocalePath("/admin", locale)} className="text-teal-bright transition-colors hover:text-foreground">
               {translations["common.admin"] ?? "Admin"}
             </Link>
           )}
@@ -164,24 +167,24 @@ export function SiteHeader() {
                   >
                     <div className="border-b border-border/60 px-4 py-3">
                       <p className="truncate text-sm font-medium text-foreground">
-                        {user.fullname || "My account"}
+                        {user.fullname || (translations["common.myAccount"] ?? "My account")}
                       </p>
                       <p className="truncate text-xs text-muted-foreground">{user.email}</p>
                     </div>
 
-                    <div className="py-1">
+                      <div className="py-1">
                       <Link
-                        to="/profile"
+                        to={withLocalePath("/profile", locale)}
                         onClick={() => setMenuOpen(false)}
                         className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
                       >
                         <User className="h-4 w-4" />
-                        Profile
+                        {translations["common.viewProfile"] ?? "Profile"}
                       </Link>
 
                       {isAdmin && (
                         <Link
-                          to="/admin"
+                          to={withLocalePath("/admin", locale)}
                           onClick={() => setMenuOpen(false)}
                           className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
                         >
@@ -191,7 +194,7 @@ export function SiteHeader() {
                       )}
                     </div>
 
-                    <div className="border-t border-border/60 py-1">
+                      <div className="border-t border-border/60 py-1">
                       <button
                         onClick={() => {
                           setMenuOpen(false);
@@ -210,16 +213,16 @@ export function SiteHeader() {
           ) : (
             <>
               <Link
-                to="/login"
+                to={withLocalePath("/login", locale)}
                 className="hidden rounded-full px-3 py-2 text-sm text-muted-foreground transition hover:text-foreground sm:inline-flex"
               >
-                Sign in
+                {translations["common.signIn"] ?? "Sign in"}
               </Link>
               <Link
-                to="/signup"
+                to={withLocalePath("/signup", locale)}
                 className="rounded-full bg-gradient-teal px-3 py-2 text-xs font-medium text-primary-foreground shadow-glow transition hover:opacity-90 sm:px-4 sm:py-2 sm:text-sm"
               >
-                Sign up
+                {translations["common.signUp"] ?? "Sign up"}
               </Link>
             </>
           )}
@@ -234,22 +237,22 @@ export function SiteHeader() {
             {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
 
-          {mobileNavOpen && (
+            {mobileNavOpen && (
             <div className="absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-xl border border-border/60 bg-background/95 shadow-lg backdrop-blur-xl md:hidden">
               <div className="border-b border-border/60 px-4 py-3">
-                <p className="text-sm font-medium text-foreground">Navigate</p>
-                <p className="text-xs text-muted-foreground">Quick links and account actions</p>
+                <p className="text-sm font-medium text-foreground">{translations["common.navigate"] ?? "Navigate"}</p>
+                <p className="text-xs text-muted-foreground">{translations["common.quickLinks"] ?? "Quick links and account actions"}</p>
               </div>
               <div className="flex flex-col py-2">
                 <Link
-                  to="/"
+                  to={withLocalePath("/", locale)}
                   onClick={() => setMobileNavOpen(false)}
                   className="px-4 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
                 >
                   {translations["common.home"] ?? "Home"}
                 </Link>
                 <Link
-                  to="/catalogue"
+                  to={withLocalePath("/catalogue", locale)}
                   onClick={() => setMobileNavOpen(false)}
                   className="px-4 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
                 >
@@ -257,7 +260,7 @@ export function SiteHeader() {
                 </Link>
                 {isAdmin && (
                   <Link
-                    to="/admin"
+                    to={withLocalePath("/admin", locale)}
                     onClick={() => setMobileNavOpen(false)}
                     className="px-4 py-2 text-sm text-teal-bright transition hover:bg-muted hover:text-foreground"
                   >
@@ -267,7 +270,7 @@ export function SiteHeader() {
                 {user ? (
                   <>
                     <Link
-                      to="/profile"
+                      to={withLocalePath("/profile", locale)}
                       onClick={() => setMobileNavOpen(false)}
                       className="px-4 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
                     >
@@ -288,14 +291,14 @@ export function SiteHeader() {
                 ) : (
                   <>
                     <Link
-                      to="/login"
+                      to={withLocalePath("/login", locale)}
                       onClick={() => setMobileNavOpen(false)}
                       className="px-4 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
                     >
                       {translations["common.signIn"] ?? "Sign in"}
                     </Link>
                     <Link
-                      to="/signup"
+                      to={withLocalePath("/signup", locale)}
                       onClick={() => setMobileNavOpen(false)}
                       className="px-4 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
                     >

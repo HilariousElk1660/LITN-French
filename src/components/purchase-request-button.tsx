@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { CheckCircle2, Copy, Info,X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +14,7 @@ import {
 } from "@/lib/books";
 import { useBooks } from "@/hooks/use-books";
 import { api } from "@/lib/api";
+import { getLocaleFromPath, withLocalePath } from "@/lib/i18n";
 
 type Status = "pending" | "paid" | "declined";
 
@@ -26,6 +27,8 @@ type Props = {
 
 export function PurchaseRequestButton({ bookId, adminId, bookTitle, price, currency }: Props) {
   const { user, loading, backendUrl } = useAuth();
+  const location = useLocation();
+  const locale = getLocaleFromPath(location.pathname);
   const {bookRequests, setBookRequests} = useBooks()
   const [status, setStatus] = useState<Status | null>(null);
   const [open, setOpen] = useState(false);
@@ -88,7 +91,7 @@ export function PurchaseRequestButton({ bookId, adminId, bookTitle, price, curre
   if (!user) {
     return (
       <Link
-        to="/login"
+        to={withLocalePath("/login", locale)}
         className="mt-2 flex w-full justify-center rounded-full border border-border bg-surface px-5 py-3 text-sm"
       >
         Sign in to order this book

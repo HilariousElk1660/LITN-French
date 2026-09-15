@@ -1,51 +1,48 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "./use-auth";
-import { Interface } from "readline";
 
+type BookRequest = {
+  id?: string;
+  book_id?: string;
+  status?: string;
+  [key: string]: unknown;
+};
 
+type ReadingSettings = {
+  theme: "Sepia" | "Light" | "Dark";
+  bgColor: string;
+  textColor: string;
+  fontSize: number;
+  fontFamily: string;
+};
 
 type BooksCtx = {
-    bookRequests: [];
-    setBookRequests: () => void;
-    readersBooks: [];
-    setReadersBooks: () => void;
-    allBooks: [];
-    setAllBooks: () => void;
-    fetchAllBooks: () => void;
-    setReadingSettings: ()=>void;
-    readingSettings: ReadingSettings | {};
-//   user: StoredUser | null;
-//   role: Role | null;
-//   isAdmin: boolean;       // true for 'admin' OR 'super-admin'
-//   isSuperAdmin: boolean;  // true only for 'super-admin'
-//   loading: boolean;
-//   signOut: () => void;
-//   refresh: () => void;
+  bookRequests: BookRequest[];
+  setBookRequests: React.Dispatch<React.SetStateAction<BookRequest[]>>;
+  readersBooks: never[];
+  setReadersBooks: React.Dispatch<React.SetStateAction<never[]>>;
+  allBooks: never[];
+  setAllBooks: React.Dispatch<React.SetStateAction<never[]>>;
+  fetchAllBooks: () => void;
+  setReadingSettings: React.Dispatch<React.SetStateAction<ReadingSettings | {}>>;
+  readingSettings: ReadingSettings | {};
 };
 
 const Ctx = createContext<BooksCtx>({
   bookRequests: [],
-  setBookRequests: ()=>{},
-  readersBooks:[],
-  setReadersBooks: ()=>{},
-  allBooks:[],
-  setAllBooks: ()=>{},
-  fetchAllBooks: ()=>{},
-  setReadingSettings: ()=>{},
-  readingSettings: {}
+  setBookRequests: () => {},
+  readersBooks: [],
+  setReadersBooks: () => {},
+  allBooks: [],
+  setAllBooks: () => {},
+  fetchAllBooks: () => {},
+  setReadingSettings: () => {},
+  readingSettings: {},
 });
 
-interface ReadingSettings {
-  theme: "Sepia" | "Light" | "Dark";
-  bgColor: string;
-  textColor: string;
-  fontSize: string;
-  fontFamily: string;
-}
-
 export function BooksProvider({ children }: { children: ReactNode }) {
-  const [bookRequests, setBookRequests] = useState<[]>(() => {
+  const [bookRequests, setBookRequests] = useState<BookRequest[]>(() => {
     if (typeof window !== "undefined") {
       try {
         const cached = localStorage.getItem("litn_book_requests");
@@ -57,7 +54,7 @@ export function BooksProvider({ children }: { children: ReactNode }) {
     return [];
   });
 
-  const [readersBooks, setReadersBooks] = useState<[]>(() => {
+  const [readersBooks, setReadersBooks] = useState<never[]>(() => {
     if (typeof window !== "undefined") {
       try {
         const cached = localStorage.getItem("litn_readers_books");
@@ -69,7 +66,7 @@ export function BooksProvider({ children }: { children: ReactNode }) {
     return [];
   });
 
-  const [allBooks, setAllBooks] = useState<[]>(() => {
+  const [allBooks, setAllBooks] = useState<never[]>(() => {
     if (typeof window !== "undefined") {
       try {
         const cached = localStorage.getItem("litn_all_books");
@@ -81,7 +78,7 @@ export function BooksProvider({ children }: { children: ReactNode }) {
     return [];
   });
 
-  const [readingSettings, setReadingSettings] = useState<ReadingSettings>(() => {
+  const [readingSettings, setReadingSettings] = useState<ReadingSettings | {}>(() => {
     if (typeof window !== "undefined") {
       try {
         const cached = localStorage.getItem("litn_reading_settings");
@@ -159,7 +156,7 @@ export function BooksProvider({ children }: { children: ReactNode }) {
           bgColor: settings?.theme === "Dark" ? "#1c1917" : settings?.theme === "Sepia" ? "#fbf0d9" : "#ffffff",
           textColor: settings?.theme === "Dark" ? "#f5f5f4" : settings?.theme === "Sepia" ? "#5f4b32" : "#171717",
           fontFamily: settings?.fontFamily || "serif",
-          fontSize: settings?.fontSize || "16px",
+          fontSize: settings?.fontSize || 16,
         };
         setReadingSettings(initialSettings);
         localStorage.setItem("litn_reading_settings", JSON.stringify(initialSettings));
@@ -176,9 +173,8 @@ export function BooksProvider({ children }: { children: ReactNode }) {
     fetchReadingSettings();
   }, []);
 
-
   return (
-    <Ctx.Provider value={{ bookRequests,setBookRequests, readersBooks, setReadersBooks ,setAllBooks,allBooks, fetchAllBooks, readingSettings, setReadingSettings }}>
+    <Ctx.Provider value={{ bookRequests, setBookRequests, readersBooks, setReadersBooks, setAllBooks, allBooks, fetchAllBooks, readingSettings, setReadingSettings }}>
       {children}
     </Ctx.Provider>
   );

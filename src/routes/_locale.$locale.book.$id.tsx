@@ -1,4 +1,5 @@
-import { createFileRoute, Link, useLocation, notFound } from "@tanstack/react-router";
+import Link from '@/components/route-link'
+import { useLocation, useParams } from 'react-router-dom'
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { PurchaseRequestButton } from "@/components/purchase-request-button";
@@ -29,40 +30,13 @@ type BookDetail = {
   book_divisions: BookDivision[];
 };
 
-export const Route = createFileRoute("/_locale/$locale/book/$id")({
-  loader: ({ params }) => {
-    return true;
-  },
-
-  notFoundComponent: () => (
-    <div className="min-h-screen">
-      <SiteHeader />
-      <div className="mx-auto max-w-2xl px-6 py-32 text-center">
-        <h1 className="font-display text-4xl">Book not found</h1>
-        <LocaleLink to="/catalogue" className="mt-6 inline-flex text-teal-bright hover:underline">
-          Back to catalogue
-        </LocaleLink>
-      </div>
-    </div>
-  ),
-  errorComponent: ({ reset }) => (
-    <div className="min-h-screen p-10 text-center">
-      <p>Something went wrong.</p>
-      <button onClick={reset} className="mt-4 rounded-full bg-gradient-teal px-4 py-2 text-sm">
-        Retry
-      </button>
-    </div>
-  ),
-  component: BookPage,
-});
-
-export function BookPage() {
+export default function BookPage() {
   const { isSuperAdmin, backendUrl } = useAuth();
   const location = useLocation();
   const locale = getLocaleFromPath(location.pathname);
   const [book, setBook] = useState<Partial<BookDetail>>({});
   const [access, setAccess] = useState(false);
-  const book_id = Route.useParams().id;
+  const { id: book_id } = useParams<{ id: string }>();
   const { bookRequests } = useBooks();
 
   const fetchBook = async () => {

@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Shield,
@@ -39,16 +39,7 @@ import {
 } from "@/components/ui/dialog";
 import { useBooks } from "@/hooks/use-books";
 import { BookList } from "@/components/all-books-super-admin";
-
-export const Route = createFileRoute("/_locale/$locale/admin")({
-  ssr: false,
-  head: () => ({ meta: [{ title: "Admin · LITN" }, { name: "robots", content: "noindex" }] }),
-  component: () => (
-    <RequireAdmin>
-      <AdminDashboard />
-    </RequireAdmin>
-  ),
-});
+import { LocaleLink } from "@/components/locale-link";
 
 type RequestRow = {
   request_id?: string;
@@ -103,8 +94,8 @@ const REQUEST_TABS: Array<{ key: RequestRow["status"]; label: string; icon: type
 ];
 
 const VIEWS = [
-  { key: "all-books", label: "All uploaded books", icon: Book },
   { key: "books", label: "My uploaded books", icon: BookOpen },
+  { key: "all-books", label: "All uploaded books", icon: Book },
   { key: "requests", label: "Book requests", icon: FileText },
   { key: "details", label: "Admin details", icon: User },
   { key: "super-admin", label: "Super Admin", icon: Crown },
@@ -119,6 +110,7 @@ type AdminUser = {
 };
 
 function AdminDashboard() {
+  const { locale } = useParams();
   const { user, isSuperAdmin, backendUrl } = useAuth();
   const token = api.getToken();
   const [view, setView] = useState<ViewKey>("books");
@@ -131,7 +123,7 @@ function AdminDashboard() {
   const [promotingUserId, setPromotingUserId] = useState<string | null>(null);
   const [promotingAction, setPromotingAction] = useState<"admin" | "super-admin" | "reader" | null>(null);
   const [uploading, setUploading] = useState(false);
-  const {allBooks, fetchAllBooks} = useBooks([]);
+  const {allBooks, fetchAllBooks} = useBooks();
 
   // Decline Modal State
   const [declineModalOpen, setDeclineModalOpen] = useState(false);
@@ -780,17 +772,18 @@ useEffect(() => {
         throw new Error(data.detail || data.error || "Failed to upload book");
       }
       toast.success("Book upload started.");
-      // setFormState({
-      //   bookName: "",
-      //   authorName: "",
-      //   publishedDate: "",
-      //   category: "",
-      //   price: "",
-      //   bookCover: null,
-      //   pdfFile: null,
-      //   currentTranslation: "english",
-      //   translateTo: "french",
-      // });
+      setFormState({
+        bookName: "",
+        authorName: "",
+        publishedDate: "",
+        category: "",
+        price: "",
+        currency: detectCurrencyFromLocale(),
+        bookCover: null,
+        pdfFile: null,
+        currentTranslation: "english",
+        translateTo: "french",
+      });
       await loadBooks(); 
       setPollingBookId(data.book_id);
     } catch (error) {
@@ -802,7 +795,8 @@ useEffect(() => {
   };
 
   const handleViewBook = (book: AdminBook) => {
-    window.location.href = `/read/${book.book_id}`;
+    if (!locale) return;
+    window.location.href = `/${locale}/read/${book.book_id}`;
   };
 
   const selectedRequests = requests.filter((request) => request.status === requestTab);
@@ -944,7 +938,7 @@ useEffect(() => {
               <h2 className="text-sm font-semibold uppercase tracking-[0.25em] text-muted-foreground">Dashboard views</h2>
               <div className="space-y-2">
                 {VIEWS.map(({ key, label, icon: Icon }) =>
-                  key === "super-admin" && !isSuperAdmin ? null :  key === "super-admin" && !isSuperAdmin ? null:(
+                  key === "super-admin" && !isSuperAdmin ? null :  key === "all-books" && !isSuperAdmin ? null:(
                     <button
                       key={key}
                       type="button"
@@ -1125,7 +1119,7 @@ useEffect(() => {
                       <div className="grid gap-4 lg:grid-cols-2">
                         {books.map((book) => {
                           const stats = bookStats.get(book.book_id) ?? { totalRequests: 0, paidRequests: 0 };
-                          return (
+                          return ( 
                             <article key={book.book_id} className="overflow-hidden rounded-3xl border border-border/60 bg-surface shadow-sm">
                               <div className="flex gap-4 p-5 sm:items-center min-w-0">
                                 <div className="h-28 w-24 overflow-hidden rounded-3xl bg-muted flex-shrink-0">
@@ -1164,14 +1158,16 @@ useEffect(() => {
                                 </div>
                               </div>
                               <div className="flex flex-wrap gap-2 border-t border-border/60 bg-background/70 p-4">
-                                <button
-                                  type="button"
-                                  onClick={() => handleViewBook(book)}
-                                  className="inline-flex items-center gap-2 rounded-3xl border border-border px-4 py-2 text-sm text-foreground transition hover:border-teal-400 cursor-pointer"
-                                >
-                                  <Eye className="h-4 w-4" />
-                                  View book
-                                </button>
+                               <LocaleLink to={`/${locale}/read/${book.book_id}`}>
+                                  <button
+                                    type="button"
+                                    // onClick={() => handleViewBook(book)}
+                                    className="inline-flex items-center gap-2 rounded-3xl border border-border px-4 py-2 text-sm text-foreground transition hover:border-teal-400 cursor-pointer"
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                    View book
+                                  </button>
+                               </LocaleLink>
                                 <button
                                   type="button"
                                   onClick={() => loadBookReport(book)}
@@ -1206,7 +1202,7 @@ useEffect(() => {
                 </div>
               )}
               {
-                view === "all-books" && !isSuperAdmin && (
+                view === "all-books" && isSuperAdmin && (
                   <BookList
                    allBooks={allBooks}
                    bookStats={bookStats} 
@@ -1859,5 +1855,13 @@ useEffect(() => {
 
       <SiteFooter />
     </div>
+  );
+}
+
+export default function AdminPage() {
+  return (
+    <RequireAdmin>
+      <AdminDashboard />
+    </RequireAdmin>
   );
 }

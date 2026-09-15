@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import Link from '@/components/route-link'
+import { useEffect, useState } from 'react'
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useAuth } from "@/hooks/use-auth";
@@ -8,19 +8,9 @@ import { BookCard } from "@/components/book-card";
 import { LocaleLink } from "@/components/locale-link";
 import { genres, type Book } from "@/lib/books";
 import { BookOpen, GraduationCap, ArrowRight, Sparkles, Compass, Clock } from "lucide-react";
+import { useParams } from 'react-router-dom';
 
-export const Route = createFileRoute("/_locale/$locale/home")({
-  head: () => ({
-    meta: [
-      { title: "Home Dashboard — LITN" },
-      {
-        name: "description",
-        content: "Your personalized medical training dashboard on LITN.",
-      },
-    ],
-  }),
-  component: Home,
-});
+export default Home
 
 type LibraryEntry = {
   reader_book_id: string;
@@ -40,7 +30,8 @@ type LibraryEntry = {
 };
 
 function Home() {
-  const { user, loading, backendUrl } = useAuth();
+  const { user, loading, backendUrl,translations } = useAuth();
+  console.log(translations);
   const { bookRequests, readersBooks } = useBooks();
   const [books, setBooks] = useState<Book[]>(() => {
     if (typeof window !== "undefined") {
@@ -55,6 +46,7 @@ function Home() {
   });
   const [loadingBooks, setLoadingBooks] = useState(books.length === 0);
   const [error, setError] = useState<string | null>(null);
+  const { locale } = useParams()
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -115,16 +107,16 @@ function Home() {
       <div className="min-h-screen">
         <SiteHeader />
         <div className="mx-auto max-w-xl px-4 py-20 text-center sm:px-6 sm:py-32">
-          <h1 className="font-display text-4xl">Access your dashboard</h1>
+          <h1 className="font-display text-4xl">{translations["common.dashboardAccess"] || 'Access your dashboard'}</h1>
           <p className="mt-3 text-muted-foreground">
-            Please sign in to view your learning dashboard, reading progress, and registered titles.
+            {translations["common.pleaseSignIn"] || 'Please sign in to view your learning dashboard, reading progress, and registered titles.'}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <LocaleLink to="/login" className="rounded-full bg-gradient-teal px-6 py-3 text-sm font-medium text-primary-foreground shadow-glow">
-              Sign in
+              {translations["common.signIn"] || 'Sign in'}
             </LocaleLink>
             <LocaleLink to="/signup" className="rounded-full border border-border bg-surface px-6 py-3 text-sm font-medium text-foreground">
-              Create account
+              {translations["common.createAccount"] || 'Create account'}
             </LocaleLink>
           </div>
         </div>
@@ -152,10 +144,10 @@ function Home() {
                 <Sparkles className="h-3.5 w-3.5" /> Clinical Learning Portal
               </span> */}
               <h1 className="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl">
-                Welcome back, <span className="text-gradient-teal">{user?.fullname || "Colleague"}</span>.
+                {translations["common.welcomeBack"] || "Welcome back"}, <span className="text-gradient-teal">{user?.fullname || (translations["common.colleagueFallback"] || "Colleague")}</span>.
               </h1>
               <p className="mt-2 text-sm text-muted-foreground sm:text-base max-w-xl">
-                Track your active reading, explore high-yield clinical materials, and access your study resources all in one place.
+                {translations["common.welcomeSubtitle"] || 'Track your active reading, explore high-yield clinical materials, and access your study resources all in one place.'}
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -163,13 +155,13 @@ function Home() {
                 to="/catalogue"
                 className="inline-flex items-center gap-2 rounded-full bg-gradient-teal px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-glow transition hover:opacity-90"
               >
-                <Compass className="h-4 w-4" /> Browse Library
+                <Compass className="h-4 w-4" /> {translations["common.browseLibrary"] || 'Browse Library'}
               </LocaleLink>
               <LocaleLink
                 to="/profile"
                 className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-surface"
               >
-                View Profile <ArrowRight className="h-4 w-4" />
+                {translations["common.viewProfile"] || 'View Profile'} <ArrowRight className="h-4 w-4" />
               </LocaleLink>
             </div>
           </div>
@@ -221,16 +213,16 @@ function Home() {
         <section className="mb-10">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="font-display text-2xl sm:text-3xl">Continue Reading...</h2>
+              <h2 className="font-display text-2xl sm:text-3xl">{translations["common.continueReading"] || 'Continue Reading...'}</h2>
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {((readersBooks as LibraryEntry[]) ?? []).length === 0 ? (
-              <div className="col-span-full rounded-2xl border border-dashed border-border/60 p-8 text-center bg-surface/30">
-                <p className="text-sm text-muted-foreground">You don't have any books in progress.</p>
+                <div className="col-span-full rounded-2xl border border-dashed border-border/60 p-8 text-center bg-surface/30">
+                <p className="text-sm text-muted-foreground">{translations["common.noBooksInProgress"] || "You don't have any books in progress."}</p>
                 <LocaleLink to="/catalogue" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-teal-bright hover:underline">
-                  Browse library <ArrowRight className="h-4 w-4" />
+                  {translations["common.browseLibraryAction"] || 'Browse library'} <ArrowRight className="h-4 w-4" />
                 </LocaleLink>
               </div>
             ) : (
@@ -239,7 +231,7 @@ function Home() {
                 return (
                   <LocaleLink
                     key={b.reader_book_id}
-                    to="/read/$id"
+                    to={`/${locale}/read/${b.book_id}`}
                     params={{ id: b.book_id }}
                     className="group block"
                   >
@@ -293,11 +285,11 @@ function Home() {
         <section className="mb-10">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="font-display text-2xl sm:text-3xl">Featured Clinical Studies</h2>
-              <p className="text-sm text-muted-foreground">Highly recommended anatomy, pharmacology, and clinical training titles.</p>
+              <h2 className="font-display text-2xl sm:text-3xl">{translations["common.featuredHeading"] || 'Featured Clinical Studies'}</h2>
+              <p className="text-sm text-muted-foreground">{translations["common.featuredSubtitle"] || 'Highly recommended anatomy, pharmacology, and clinical training titles.'}</p>
             </div>
             <LocaleLink to="/catalogue" className="text-teal-bright hover:underline text-sm font-medium inline-flex items-center gap-1">
-              View all <ArrowRight className="h-4 w-4" />
+              {translations["common.browseLibraryAction"] || 'View all'} <ArrowRight className="h-4 w-4" />
             </LocaleLink>
           </div>
 

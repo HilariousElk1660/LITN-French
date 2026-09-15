@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
+import { withLocalePath, resolvePreferredLocale } from "@/lib/i18n";
 
 export function RequireAdmin({ children }: { children: React.ReactNode }) {
   const { user, isAdmin, loading } = useAuth();
@@ -8,8 +9,14 @@ export function RequireAdmin({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (loading) return;
-    if (!user) navigate({ to: "/login" });
-    else if (!isAdmin) navigate({ to: "/" });
+    if (!user) {
+      const locale = resolvePreferredLocale();
+      navigate(withLocalePath("/login", locale));
+    }
+    else if (!isAdmin) {
+      const locale = resolvePreferredLocale();
+      navigate(withLocalePath("/", locale));
+    }
   }, [user, isAdmin, loading, navigate]);
 
   if (loading) {

@@ -1,4 +1,4 @@
-import { createFileRoute, useLocation } from "@tanstack/react-router";
+
 import { useState } from "react";
 import { toast } from "sonner";
 import { Lock, Mail, ChevronLeft } from "lucide-react";
@@ -6,15 +6,12 @@ import { SiteHeader } from "@/components/site-header";
 import { LocaleLink } from "@/components/locale-link";
 import { api } from "@/lib/api";
 import { getLocaleFromPath, withLocalePath } from "@/lib/i18n";
+import { useParams } from "react-router-dom";
 
-export const Route = createFileRoute("/_locale/$locale/forgot-password")({
-  head: () => ({ meta: [{ title: "Forgot password — LITN" }] }),
-  component: ForgotPasswordPage,
-});
+
 
 export function ForgotPasswordPage() {
-  const location = useLocation();
-  const locale = getLocaleFromPath(location.pathname);
+  const {locale} = useParams();
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
