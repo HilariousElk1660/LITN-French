@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useAuth } from "@/hooks/use-auth";
 import { createPayment } from "@/lib/payfast";
 import { ShieldCheck } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
+import { usePayment } from "@/hooks/use-payment";
 
 
 
@@ -13,21 +14,33 @@ export default function CheckoutPage() {
     const { backendUrl } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const {locale} = useParams()
+    const {locale} = useParams();
+    const bookDetails = useLocation().state;
+    const [order, setOrder] = useState<any>({});
+    const {setBookDetails} = usePayment()
+    
+
+    useEffect(()=>{
+        if (!bookDetails.book_id) return
+        localStorage.setItem("bookDetails", JSON.stringify(bookDetails));
+        const details = {
+          id: "order-" + Date.now(),
+          itemName: `${bookDetails.book_name} x 1`,
+          amount: bookDetails.price,
+          requestId: bookDetails.request_id,
+          bookId: bookDetails.book_id,
+          readerId: bookDetails.reader_id,
+          readerEmail: bookDetails.reader_email,
+          readerName: bookDetails.reader_name,
+        };
+        setOrder(details)
+    },[bookDetails])
+    console.log(order,bookDetails)
 
     // TODO: replace with real order data — from route search params, cart state, or props
-const order = {
-  id: "order-" + Date.now(),
-  itemName: "Membership — Monthly",
-  amount: 149.0,
-  requestId: "request-" + Date.now(),
-  bookId: "placeholder-book-id",
-  readerId: "placeholder-reader-id",
-  readerEmail: "placeholder@example.com",
-  readerName: "Placeholder Reader",
-};
 
     async function handlePay() {
+        console.log("ORDER",order)
         setLoading(true);
         setError(null);
         try {
@@ -53,7 +66,8 @@ const order = {
     return (
         <div className="min-h-screen">
             <SiteHeader />
-
+            {
+            !order.requestId? <div>Loading...</div>:
             <main className="mx-auto max-w-md px-4 py-16 sm:px-6">
                 <div className="rounded-3xl border border-border/60 bg-surface p-6 sm:p-8 shadow-card">
                     <h1 className="font-display text-2xl sm:text-3xl">Checkout</h1>
@@ -92,6 +106,7 @@ const order = {
                     </p>
                 </div>
             </main>
+            }
 
             <SiteFooter />
         </div>

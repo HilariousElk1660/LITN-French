@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { CheckCircle2, Copy, Info,X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +15,7 @@ import {
 import { useBooks } from "@/hooks/use-books";
 import { api } from "@/lib/api";
 import { getLocaleFromPath, withLocalePath } from "@/lib/i18n";
+import { usePayment } from "@/hooks/use-payment";
 
 type Status = "pending" | "paid" | "declined";
 
@@ -27,12 +28,15 @@ type Props = {
 
 export function PurchaseRequestButton({ bookId, adminId, bookTitle, price, currency }: Props) {
   const { user, loading, backendUrl } = useAuth();
+  const {setBookDetails} = usePayment()
   const location = useLocation();
   const locale = getLocaleFromPath(location.pathname);
   const {bookRequests, setBookRequests} = useBooks()
   const [status, setStatus] = useState<Status | null>(null);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"mobile-money" | "card" | null>(null);
+  const [showMethodSelector, setShowMethodSelector] = useState(true);
   // Keep the chosen currency stable for the modal while still defaulting to the buyer's locale.
   // This allows the UI to auto-detect the browser locale and gives a clear dropdown override.
   const normalizedBookCurrency = normalizeCurrency(currency);
@@ -43,6 +47,41 @@ export function PurchaseRequestButton({ bookId, adminId, bookTitle, price, curre
   // Live rates fetched from backend when the modal is opened. Falls back to the
   // static convertCurrency() implementation in case the backend call fails.
   const [rates, setRates] = useState<Record<string, number> | null>(null);
+  const nav = useNavigate()
+
+
+const handlePayfast = async () => {
+  try {
+    // 1. Await the async submit call
+    const response = await submit();
+
+
+    if (!response) {
+      throw new Error("No response received from submit");
+    }
+
+    const payload = {
+      request_id: response.request_id,
+      book_id: response.book_id,
+      book_name: response.book_name,
+      price: price,
+      status: "paid",
+      currency: currency,
+      reader_id: response.reader_id,
+      reader_email: response.reader_email,
+      reader_name: response.reader_name,
+      payment_type: "payfast",
+    };
+
+    setBookDetails(payload);
+
+
+    nav(`/${locale}/checkout`, { state: payload });
+  } catch (error) {
+    console.error("Payfast checkout failed:", error);
+ 
+  }
+};
 
   useEffect(() => {
     if (!open) return;
@@ -151,19 +190,22 @@ export function PurchaseRequestButton({ bookId, adminId, bookTitle, price, curre
         },
           'body':JSON.stringify(payload)
       });
-
       const data = await res.json()
-      console.log("NEW",data)
+      console.log(data)
+      
       if (res.ok){
         setOpen(false)
         setBookRequests([...bookRequests,data?.new_request[0]])
+        return data["new_request"][0]
       }else{
         toast.error("Was unable to send book request please try again later")
         setOpen(false)
+        return {}
       }
 
     } catch(e){
       console.error("error sending book request",e)
+      return {}
     } finally{
       setBusy(false)
     }
@@ -184,6 +226,63 @@ export function PurchaseRequestButton({ bookId, adminId, bookTitle, price, curre
       >
         {status === "declined" ? `Order again — ${formatCurrencyAmount(displayPrice, selectedCurrency)}` : `Order this book — ${formatCurrencyAmount(displayPrice, selectedCurrency)}`}
       </button>
+    );
+  }
+
+  // Show payment method selection screen first
+  if (showMethodSelector) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity">
+        {/* Click outside to close backdrop */}
+        <div className="fixed inset-0" onClick={() => setOpen(false)} aria-hidden="true" />
+
+        {/* Method Selector Card */}
+        <div className="relative z-10 w-full max-w-md rounded-2xl border border-border bg-surface p-6 text-sm shadow-xl">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h3 className="font-display text-lg text-foreground">Choose payment method</h3>
+              <p className="mt-1 text-muted-foreground">
+                Select how you'd like to pay for this book.
+              </p>
+            </div>
+            <button
+              onClick={() => setOpen(false)}
+              className="rounded-full border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              aria-label="Close Modal"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="mt-6 space-y-3">
+            {/* Mobile Money Option */}
+            <button
+              onClick={() => {
+                setPaymentMethod("mobile-money");
+                setShowMethodSelector(false);
+              }}
+              className="w-full rounded-xl border-2 border-teal-bright/40 bg-teal/5 p-4 text-left transition hover:border-teal-bright hover:bg-teal/10"
+            >
+              <div className="font-semibold text-foreground">Mobile Money</div>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Pay via {PAYMENT_INFO.provider} — no card required. Quick and secure.
+              </p>
+            </button>
+
+            {/* Card Payment Option (Future) */}
+            <button
+              // disabled
+              onClick={handlePayfast}
+              className="w-full rounded-xl border-2 border-teal-bright/40 bg-teal/5 p-4 text-left transition hover:border-teal-bright hover:bg-teal/10"
+            >
+              <div className="font-semibold text-muted-foreground">Credit/Debit Card</div>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Coming soon — pay securely with your card.
+              </p>
+            </button>
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -212,6 +311,14 @@ export function PurchaseRequestButton({ bookId, adminId, bookTitle, price, curre
             <X className="h-4 w-4" />
           </button>
         </div>
+
+        {/* Back to method selector button */}
+        <button
+          onClick={() => setShowMethodSelector(true)}
+          className="mt-3 text-sm text-teal-bright hover:underline"
+        >
+          ← Change payment method
+        </button>
 
         {/* Summary */}
         <div className="mt-4 space-y-3">

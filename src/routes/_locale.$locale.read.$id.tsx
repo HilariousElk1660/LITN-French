@@ -320,6 +320,7 @@ function ReaderInner({ book, pageStoppedAt, book_id, container }: { book: any; p
   const { user } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [content, setContent] = useState('');
+  const [bookFileType, setBookFileType] = useState('');
   const {readingSettings} = useBooks();
   const {locale} = useParams();
   const lang = supported_languages[locale]
@@ -357,9 +358,16 @@ filter: sepia(${readingSettings?.theme === "Sepia" ? "100%" : "0%"}) brightness(
     if (!readingSettings.theme || !book) return;
     console.log(readingSettings)
     setMounted(true);
-    fetch(book.pdf_file_url[lang])
-      .then((res) => res.text())
-      .then((data) => setContent(data +  styling));
+    const url = book.pdf_file_url[lang];
+    if (!url.endsWith(".pdf")) {
+      setBookFileType('html');
+      fetch(url)
+        .then((res) => res.text())
+        .then((data) => setContent(data + styling));
+    } else {
+      setContent(url)
+      setBookFileType("pdf")
+    }
 
   }, [readingSettings,book]);
 
@@ -370,10 +378,17 @@ filter: sepia(${readingSettings?.theme === "Sepia" ? "100%" : "0%"}) brightness(
   
 
   return (
-    <div style={{width: "99vw", display: "flex", justifyContent: "center",fontFamily: readingSettings?.fontFamily,fontSize: `${readingSettings?.fontSize}px`, backgroundColor:readingSettings?.bgColor, color:readingSettings?.textColor}}ref={container}>
-      <HTMLViewer htmlString={content}/>
-
-    </div>
+    
+      bookFileType? bookFileType == "pdf" ? (
+        <div style={{marginTop: "50px"}}>
+          <PdfViewer file={content}  book_id={book.book_id}/>
+        </div> 
+      ) : (
+        <div style={{width: "99vw", display: "flex", justifyContent: "center",fontFamily: readingSettings?.fontFamily,fontSize: `${readingSettings?.fontSize}px`, backgroundColor:readingSettings?.bgColor, color:readingSettings?.textColor}}ref={container}>
+          <HTMLViewer htmlString={content}/>
+        </div>
+      ) : null
+    
   )
 }
 

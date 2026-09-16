@@ -201,6 +201,7 @@ export default function ProfilePage() {
               {library.map((entry) => {
                 const pct = entry.percentage_completed ?? 0;
                 const isDone = entry.progress === "done";
+                console.log("ENTRY", entry);
                 return (
                   <li key={entry.reader_book_id}>
                     <Link
