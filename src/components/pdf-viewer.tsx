@@ -6,6 +6,11 @@ import { useAuth } from '@/hooks/use-auth';
 import {getAsset} from "@/lib/idb"
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url
+).toString();
+
 
 export default function PdfViewer({initialPage = 5,file,book_id}) {
   const isMobile = window.matchMedia("(max-width: 768px)").matches;
@@ -23,11 +28,34 @@ export default function PdfViewer({initialPage = 5,file,book_id}) {
     setNumPages(numPages);
     pageRefs.current = Array(numPages).fill(null);
   }
-  console.log("FILE",typeof file)
+  console.log("FILE",typeof file);
+
   const loadbook = async ()  =>{
- console.log("PDF",await getAsset(`1789584356180`,'pdf'))
+    const fileBook = await getAsset(book_id,'pdf')
+    console.log("PDF",fileBook,book_id)
+    return fileBook
   }
-  loadbook()
+  const [fileBook, setFileBook] = useState(null);
+  useEffect(() => {
+  let cancelled = false;
+  let url;
+
+  const load = async () => {
+    const result = await getAsset(book_id, 'pdf');
+    const blob = result.blob;
+    if (!blob || cancelled) return;
+
+    url = URL.createObjectURL(blob);
+    setFileBook(url);
+  };
+
+  load();
+
+  return () => {
+    cancelled = true;
+    if (url) URL.revokeObjectURL(url);
+  };
+}, [book_id]);
   // Once all page refs exist, jump to the initial page (no smooth
   // animation here — this is a "start here" jump, not a nav click).
   useEffect(() => {
@@ -195,7 +223,7 @@ export default function PdfViewer({initialPage = 5,file,book_id}) {
         onScroll={handleScroll}
         className="w-full max-h-[92vh] overflow-y-auto rounded-lg border border-border bg-muted/30"
       >
-        <Document file={getAsset(`${book_id}-en`,'pdf')} onLoadSuccess={onDocumentLoadSuccess}>
+        <Document file={fileBook} onLoadSuccess={onDocumentLoadSuccess}>
           <div className="flex flex-col items-center gap-4 p-4">
             {numPages &&
               Array.from({ length: numPages }, (_, idx) => (

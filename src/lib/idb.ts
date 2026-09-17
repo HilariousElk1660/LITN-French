@@ -110,7 +110,7 @@ export async function putAsset(bookId, path, blob) {
 export async function getAsset(bookId, path) {
   const db = await openDB();
   const store = tx(db, ASSETS_STORE, 'readonly');
-  const key = bookId;
+  const key = `${bookId}/${path}`;
   const record = await promisifyRequest(store.get(key));
   return record || null;
 }

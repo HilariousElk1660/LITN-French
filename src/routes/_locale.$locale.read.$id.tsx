@@ -377,7 +377,7 @@ filter: sepia(${readingSettings?.theme === "Sepia" ? "100%" : "0%"}) brightness(
   }
 
   
-
+console.log("loaded read page")
   return (
     
       bookFileType? bookFileType == "pdf" ? (
