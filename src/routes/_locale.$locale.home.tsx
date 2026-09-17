@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useBooks } from "@/hooks/use-books";
 import { BookCard } from "@/components/book-card";
 import { LocaleLink } from "@/components/locale-link";
-import { genres, type Book } from "@/lib/books";
+import { genres, mapBackendBook, type Book } from "@/lib/books";
 import { BookOpen, GraduationCap, ArrowRight, Sparkles, Compass, Clock } from "lucide-react";
 import { useParams } from 'react-router-dom';
 
@@ -59,20 +59,7 @@ function Home() {
           throw new Error(`Failed to load books: ${res.status} ${res.statusText}`);
         }
         const data = await res.json();
-        const mappedBooks: Book[] = (data ?? []).map((item: any) => ({
-          id: item.book_id,
-          title: item.book_name,
-          author: item.author_name ?? "Unknown author",
-          authorId: item.author_id ?? item.author_name?.toLowerCase().replace(/\s+/g, "-") ?? "unknown",
-          cover: item.book_cover_url ?? "",
-          genre: item.category ?? "Unknown",
-          status: item.status === "Complete" ? "Complete" : "Serialised",
-          chapters: item.chapters ?? item.pages ?? 0,
-          rating: item.rating ?? 0,
-          price: item.subscription_price ?? 0,
-          currency: item.currency ?? "USD",
-          synopsis: item.synopsis ?? item.description ?? "",
-        }));
+        const mappedBooks: Book[] = (data ?? []).map((item: any) => mapBackendBook(item));
         setBooks(mappedBooks);
         if (typeof window !== "undefined") {
           localStorage.setItem("litn_all_books_mapped", JSON.stringify(mappedBooks));

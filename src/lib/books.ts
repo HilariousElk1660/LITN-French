@@ -230,6 +230,28 @@ export const genres = [
   "Internal Medicine",
 ];
 
+// Maps a backend book row (GET /all_books) into the UI Book shape.
+// Shared by home + catalogue so the mapping stays consistent.
+export function mapBackendBook(item: Record<string, any>): Book {
+  return {
+    id: item.book_id,
+    title: item.book_name,
+    author: item.author_name ?? "Unknown author",
+    authorId:
+      item.author_id ??
+      item.author_name?.toLowerCase().replace(/\s+/g, "-") ??
+      "unknown",
+    cover: item.book_cover_url ?? "",
+    genre: item.category ?? "Unknown",
+    status: String(item.status ?? "").trim().toLowerCase().startsWith("complet") ? "Complete" : "Serialised",
+    chapters: item.chapters ?? 0,
+    rating: item.rating ?? 0,
+    price: item.subscription_price ?? 0,
+    currency: item.currency ?? "USD",
+    synopsis: item.synopsis ?? item.description ?? "",
+  };
+}
+
 export const sampleChapter = `Clinical reasoning begins with the story the patient tells, and the story you tell yourself about what could kill them first.
 
 Before you touch a stethoscope, ask three questions: what brought them in today, what has changed since it started, and what would happen if we did nothing. The answers frame every investigation that follows.

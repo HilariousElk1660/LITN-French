@@ -12,6 +12,9 @@ export default defineConfig({
     devOptions: {
       enabled: true
     },
+    workbox: {
+      globPatterns: ['**/*.{js,mjs,css,html,ico,png,svg,woff2,ttf}'],
+    },
     manifest: {
         name: 'LITN — Read Together & Meet Authors',
         short_name: 'LITN',

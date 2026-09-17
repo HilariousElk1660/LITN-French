@@ -20,6 +20,7 @@ import AdminPage from './routes/_locale.$locale.admin'
 import ReaderPage from './routes/_locale.$locale.read.$id'
 import IndexRoot from './routes/_locale.$locale.index'
 import { ForgotPasswordPage } from './routes/_locale.$locale.forgot-password'
+import { ResetPasswordPage } from './routes/_locale.$locale.reset-password'
 import { withLocalePath, resolvePreferredLocale } from './lib/i18n'
 import CheckoutPage from './routes/_locale.$locale.checkout'
 import PaymentCancelled from './routes/_locale.$locale.cancelled'
@@ -70,6 +71,7 @@ export default function App() {
             <Route path="profile" element={<ProfilePage />} />
             <Route path="admin" element={<AdminPage />} />
             <Route path="forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="reset-password" element={<ResetPasswordPage />} />
             <Route path="checkout" element={<CheckoutPage />} />
             <Route path="payment/cancelled" element={<PaymentCancelled />} />
             <Route path="payment/success" element={<PaymentSuccess />} />

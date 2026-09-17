@@ -4,7 +4,7 @@ import testPdf from "../test.pdf";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 
-pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 
 export default function PdfViewer({initialPage = 5,file,book_id}) {
   const isMobile = window.matchMedia("(max-width: 768px)").matches;

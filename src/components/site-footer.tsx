@@ -20,7 +20,7 @@ export function SiteFooter() {
           </p>
         </div>
         <div>
-          <h4 className="text-sm font-semibold">{translations["common.libraryTitle"] ?? "Read"}</h4>
+          <h4 className="text-sm font-semibold">{translations["common.footerLibrary"] ?? "Browse"}</h4>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li><Link to={withLocalePath("/catalogue", locale)} className="hover:text-foreground">{translations["common.catalogue"] ?? "Catalogue"}</Link></li>
             <li><Link to={withLocalePath("/catalogue", locale)} className="hover:text-foreground">{translations["common.serialised"] ?? "Serialised"}</Link></li>

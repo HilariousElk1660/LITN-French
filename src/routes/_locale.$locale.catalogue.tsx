@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { BookCard } from "@/components/book-card";
 import { LocaleLink } from "@/components/locale-link";
-import { genres, type Book } from "@/lib/books";
+import { genres, mapBackendBook, type Book } from "@/lib/books";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function CataloguePage() {
@@ -43,20 +43,7 @@ export default function CataloguePage() {
         }
 
         const data = await res.json();
-        const mappedBooks: Book[] = (data ?? []).map((item: any) => ({
-          id: item.book_id,
-          title: item.book_name,
-          author: item.author_name ?? "Unknown author",
-          authorId: item.author_id ?? item.author_name?.toLowerCase().replace(/\s+/g, "-") ?? "unknown",
-          cover: item.book_cover_url ?? "",
-          genre: item.category ?? "Unknown",
-          status: item.status === "Complete" ? "Complete" : "Serialised",
-          chapters: item.chapters ?? item.pages ?? 0,
-          rating: item.rating ?? 0,
-          price: item.subscription_price ?? 0,
-          currency: item.currency ?? "USD",
-          synopsis: item.synopsis ?? item.description ?? "",
-        }));
+        const mappedBooks: Book[] = (data ?? []).map((item: any) => mapBackendBook(item));
 
         setBooks(mappedBooks);
         if (typeof window !== "undefined") {

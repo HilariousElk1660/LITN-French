@@ -1,4 +1,4 @@
-import { useEffect, useState, Suspense, useRef } from "react";
+import { useEffect, useState, Suspense, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 // import { getBook, sampleChapter } from "@/lib/books";
 import logo from "@/assets/litn-logo.asset.json";
@@ -9,54 +9,60 @@ import { ArrowLeft, Type, Sun, Palette } from 'lucide-react';
 import { HTMLViewer } from "@/components/html-viewer";
 import html from "@/assets/html.txt"
 import { useBooks } from "@/hooks/use-books";
-import { read } from "fs";
 import supported_languages from '@/assets/supported_languages.json'
 
-function BackButton({ bookId,readerContainer }: { bookId: string, readerContainer: any, initialStyling: any }) {
+function BackButton({ bookId, readerContainer }: { bookId: string, readerContainer: any, initialStyling: any }) {
   const navigate = useNavigate();
   const { locale, id } = useParams();
-  const {readingSettings} = useBooks();
-  const {backendUrl:api} = useAuth()
+  const { readingSettings, setReadingSettings } = useBooks();
+  const { backendUrl: api } = useAuth()
 
   const handleBack = () => {
     navigate(-1);
   };
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [fontSize, setFontSize] = useState<number>(readingSettings?.fontSize || 16);
-  const [fontFamily, setFontFamily] = useState<string>(readingSettings?.fontFamily || 'serif');
-  const [textColor, setTextColor] = useState<string>(readingSettings?.textColor || '#000000');
-  const [bgColor, setBgColor] = useState<string>(readingSettings?.bgColor || '#f5f5dc'); 
-  const [theme, setTheme] = useState<string>(readingSettings?.theme || 'light');
+  const [fontSize, setFontSize] = useState<number>(16);
+  const [fontFamily, setFontFamily] = useState<string>('serif');
+  const [textColor, setTextColor] = useState<string>('#171717');
+  const [bgColor, setBgColor] = useState<string>('#ffffff');
+  const [theme, setTheme] = useState<string>('Light');
 
   const updateSetting = (key: string, value: any) => {
-
-
-  // Update local state first
-  if (key === 'fontSize') setFontSize(value);
-  if (key === 'fontFamily') setFontFamily(value);
-  if (key === 'textColor') setTextColor(value);
-  if (key === 'bgColor') setBgColor(value);
-  if (key === 'theme') setTheme(value);
-
-  // Construct updated object with the new value override
-  const updated = {
-    fontSize,
-    fontFamily,
-    textColor,
-    bgColor,
-    [key]: value
+    // Update local state; a separate effect pushes changes into the shared
+    // reading settings so the reader container re-renders deterministically.
+    if (key === 'fontSize') setFontSize(value);
+    if (key === 'fontFamily') setFontFamily(value);
+    if (key === 'textColor') setTextColor(value);
+    if (key === 'bgColor') setBgColor(value);
+    if (key === 'theme') setTheme(value);
   };
-};
 
+  // Pull the latest saved settings into the local controls once they load.
+  useEffect(() => {
+    if (readingSettings && typeof readingSettings === "object" && "theme" in readingSettings) {
+      const rs = readingSettings as { theme?: string; fontSize?: number; fontFamily?: string; textColor?: string; bgColor?: string };
+      setTheme(rs.theme || 'Light');
+      setFontSize(rs.fontSize || 16);
+      setFontFamily(rs.fontFamily || 'serif');
+      setTextColor(rs.textColor || '#171717');
+      setBgColor(rs.bgColor || '#ffffff');
+    }
+  }, [readingSettings]);
 
-  useEffect(()=>{
-  setFontSize(readingSettings?.fontSize || "16px");
-  setFontFamily(readingSettings?.fontFamily || 'serif');
-  setTextColor(readingSettings?.textColor || '#000000');
-  setBgColor(readingSettings?.bgColor || '#f5f5dc');
-  setTheme(readingSettings?.theme || 'light');
-
-  },[readingSettings])
+  // Push local control changes into the shared settings (skips the loading
+  // state when the settings object hasn't been hydrated yet).
+  useEffect(() => {
+    if (!readingSettings || Object.keys(readingSettings).length === 0) return;
+    const rs = readingSettings as { theme?: string; fontSize?: number; fontFamily?: string; textColor?: string; bgColor?: string };
+    if (
+      rs.theme === theme &&
+      rs.fontSize === fontSize &&
+      rs.fontFamily === fontFamily &&
+      rs.textColor === textColor &&
+      rs.bgColor === bgColor
+    ) return;
+    setReadingSettings({ ...readingSettings, theme, fontSize, fontFamily, textColor, bgColor });
+  }, [theme, fontSize, fontFamily, textColor, bgColor, readingSettings, setReadingSettings]);
 
   const saveSettings = async ()=>{
     console.log({
@@ -87,21 +93,6 @@ function BackButton({ bookId,readerContainer }: { bookId: string, readerContaine
     saveSettings();
 
   },[isOpen]);
-
-
-  useEffect(() => {
-    if (readerContainer.current) {
-      const cont = readerContainer.current;
-       
-      // Assign properties directly to prevent invalid strings from silently failing
-      cont.style.fontSize = `${fontSize}px`;
-      cont.style.color = textColor;
-      cont.style.backgroundColor = bgColor;
-
-      // Handle generic font family fallback
-      cont.style.fontFamily = fontFamily.replace('font-', ''); 
-    }
-  }, [fontFamily, fontSize, textColor, bgColor]);
 
   return (
    <header className="fixed top-0 left-0 w-full h-[6vh] min-h-[48px] bg-background backdrop-blur border-b border-teal-200/50 z-50 flex items-center justify-between px-4">
@@ -317,16 +308,23 @@ function Reader() {
 }
 
 function ReaderInner({ book, pageStoppedAt, book_id, container }: { book: any; pageStoppedAt: number; book_id: string; container: React.RefObject<any> }) {
-  const { user } = useAuth();
+  const { user, backendUrl } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [content, setContent] = useState('');
   const [bookFileType, setBookFileType] = useState('');
-  const {readingSettings} = useBooks();
-  const {locale} = useParams();
+  const { readingSettings } = useBooks();
+  const { locale } = useParams();
   const lang = supported_languages[locale]
+
+  // HTML page tracking (progress is saved the same way as the PDF reader)
+  const [htmlPage, setHtmlPage] = useState<number>(pageStoppedAt > 0 ? pageStoppedAt : 1);
+  const htmlPageRef = useRef(htmlPage);
+  htmlPageRef.current = htmlPage;
+  const hasJumped = useRef(false);
+
   const styling = `<style>
   .page{
-  border-bottom: 2px solid ${container.current?.style.color || 'teal'};
+  border-bottom: 2px solid teal;
   padding: 60px 0;
   width:60vw;
   text-align:center
@@ -334,16 +332,8 @@ function ReaderInner({ book, pageStoppedAt, book_id, container }: { book: any; p
 
   }
   img{
-filter: sepia(${readingSettings?.theme === "Sepia" ? "100%" : "0%"}) brightness(${readingSettings?.theme === "Dark" ? "60%" : "100%"});
+ filter: sepia(${readingSettings?.theme === "Sepia" ? "100%" : "0%"}) brightness(${readingSettings?.theme === "Dark" ? "60%" : "100%"});
   }
-// .page {
-//   display: grid;
-//   grid-template-columns: 1fr;
-//   justify-items: center; /* Centers child elements horizontally within the grid */
-//   align-items: center;   /* Centers child elements vertically (if container has height) */
-
-// }
-
 [data-page-id="0"] {
   display: grid;
   grid-template-columns: 1fr;
@@ -355,8 +345,7 @@ filter: sepia(${readingSettings?.theme === "Sepia" ? "100%" : "0%"}) brightness(
   </style>`;
 
   useEffect(() => {
-    if (!readingSettings.theme || !book) return;
-    console.log(readingSettings)
+    if (!readingSettings.theme || !book || !book.pdf_file_url) return;
     setMounted(true);
     const url = book.pdf_file_url[lang];
     if (!url.endsWith(".pdf")) {
@@ -369,13 +358,75 @@ filter: sepia(${readingSettings?.theme === "Sepia" ? "100%" : "0%"}) brightness(
       setBookFileType("pdf")
     }
 
-  }, [readingSettings,book]);
+  }, [readingSettings, book]);
+
+  // Once the HTML content is in, count the pages and restore the saved page.
+  useEffect(() => {
+    if (!mounted || bookFileType !== 'html' || !content || hasJumped.current) return;
+    const pages = container.current?.querySelectorAll('.page') ?? [];
+    if (pages.length > 0) {
+      const target = pages[Math.min(Math.max(htmlPage - 1, 0), pages.length - 1)];
+      target?.scrollIntoView({ block: 'start' });
+    }
+    hasJumped.current = true;
+  }, [mounted, bookFileType, content, container, htmlPage]);
+
+  // Track the page nearest the top of the viewport while scrolling.
+  const handleReaderScroll = useCallback(() => {
+    const cont = container.current;
+    if (!cont) return;
+    const pages = cont.querySelectorAll('.page');
+    if (!pages.length) return;
+    const marker = cont.getBoundingClientRect().top;
+    let closestIndex = 0;
+    let minDist = Infinity;
+    pages.forEach((el, i) => {
+      if (!(el instanceof HTMLElement)) return;
+      const dist = Math.abs(el.getBoundingClientRect().top - marker);
+      if (dist < minDist) {
+        minDist = dist;
+        closestIndex = i;
+      }
+    });
+    const next = closestIndex + 1;
+    if (next !== htmlPageRef.current) setHtmlPage(next);
+  }, [container]);
+
+  useEffect(() => {
+    if (bookFileType !== 'html') return;
+    window.addEventListener('scroll', handleReaderScroll, { passive: true });
+    window.addEventListener('resize', handleReaderScroll);
+    return () => {
+      window.removeEventListener('scroll', handleReaderScroll);
+      window.removeEventListener('resize', handleReaderScroll);
+    };
+  }, [bookFileType, handleReaderScroll]);
+
+  // Debounced save while reading HTML books (mirrors the PDF viewer).
+  const saveHtmlProgress = useCallback((page: number) => {
+    const readerId = user?.user_id;
+    if (!readerId || !book_id) return;
+    fetch(`${backendUrl}/save_reading_progress?reader_id=${readerId}&book_id=${book_id}&page_stopped_at=${page}`, {
+      method: 'POST',
+    }).catch((err) => console.error('Failed to save reading progress:', err));
+  }, [backendUrl, book_id, user?.user_id]);
+
+  // Flush progress on leave (pagehide/beforeunload + effect cleanup).
+  useEffect(() => {
+    if (bookFileType !== 'html') return;
+    const flush = () => saveHtmlProgress(htmlPageRef.current);
+    window.addEventListener('pagehide', flush);
+    window.addEventListener('beforeunload', flush);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      window.removeEventListener('beforeunload', flush);
+      flush();
+    };
+  }, [bookFileType, saveHtmlProgress]);
 
   if (!mounted) {
     return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading reader…</div>;
   }
-
-  
 
   return (
     
@@ -384,7 +435,7 @@ filter: sepia(${readingSettings?.theme === "Sepia" ? "100%" : "0%"}) brightness(
           <PdfViewer file={content}  book_id={book.book_id}/>
         </div> 
       ) : (
-        <div style={{width: "99vw", display: "flex", justifyContent: "center",fontFamily: readingSettings?.fontFamily,fontSize: `${readingSettings?.fontSize}px`, backgroundColor:readingSettings?.bgColor, color:readingSettings?.textColor}}ref={container}>
+        <div style={{width: "99vw", display: "flex", justifyContent: "center",fontFamily: readingSettings?.fontFamily,fontSize: `${readingSettings?.fontSize}px`, backgroundColor: readingSettings?.bgColor, color: readingSettings?.textColor}} ref={container}>
           <HTMLViewer htmlString={content}/>
         </div>
       ) : null
