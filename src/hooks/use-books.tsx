@@ -15,6 +15,11 @@ type ReadingSettings = {
   textColor: string;
   fontSize: number;
   fontFamily: string;
+  lineHeight: number;
+  letterSpacing: number;
+  textAlign: "left" | "justify";
+  maxLineWidth: number;
+  focusMode: boolean;
 };
 
 type BooksCtx = {
@@ -157,6 +162,11 @@ export function BooksProvider({ children }: { children: ReactNode }) {
           textColor: settings?.theme === "Dark" ? "#f5f5f4" : settings?.theme === "Sepia" ? "#5f4b32" : "#171717",
           fontFamily: settings?.fontFamily || "serif",
           fontSize: settings?.fontSize || 16,
+          lineHeight: settings?.lineHeight ?? 1.75,
+          letterSpacing: settings?.letterSpacing ?? 0,
+          textAlign: settings?.textAlign || "justify",
+          maxLineWidth: settings?.maxLineWidth ?? 72,
+          focusMode: settings?.focusMode ?? false,
         };
         setReadingSettings(initialSettings);
         localStorage.setItem("litn_reading_settings", JSON.stringify(initialSettings));

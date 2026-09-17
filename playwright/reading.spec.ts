@@ -50,7 +50,7 @@ test.describe('Reading', () => {
     await expect(page.getByText('Font Family')).toBeVisible();
 
     // Font size is React state in the dropdown — moving the slider updates the label deterministically
-    const range = page.locator('input[type="range"]');
+    const range = page.getByRole('slider', { name: 'Font size slider' });
     await range.fill('20');
     await expect(page.locator('span').filter({ hasText: '20px' }).first()).toBeVisible();
   });
