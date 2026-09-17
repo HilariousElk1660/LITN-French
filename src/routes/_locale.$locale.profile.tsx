@@ -1,11 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Shield, Crown, BookOpen, CheckCircle2, Circle } from "lucide-react";
+import { Shield, Crown, BookOpen, CheckCircle2, Circle, ToggleRight, ToggleLeft } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { useAuth } from "@/hooks/use-auth";
 import { api, type AuthResponse } from "@/lib/api";
 import { getLocaleFromPath, withLocalePath } from "@/lib/i18n";
+import { Switch } from "@/components/ui/switch";
+import { useBooks } from "@/hooks/use-books";
+import { is } from "date-fns/locale";
+import {putAsset, putBook} from "@/lib/idb"
+
 
 type LibraryEntry = {
   reader_book_id: string;
@@ -13,6 +18,7 @@ type LibraryEntry = {
   book_name: string;
   author_name: string | null;
   book_cover_url: string | null;
+  file_url: object | null;
   current_page: number;
   total_pages: number;
   current_chapter_index: number;
@@ -23,6 +29,8 @@ type LibraryEntry = {
   page_stopped_at: string | null;
   last_opened_on: string | null;
 };
+
+
 
 export default function ProfilePage() {
   const { user, isAdmin, isSuperAdmin, loading: authLoading, refresh } = useAuth();
@@ -40,15 +48,21 @@ export default function ProfilePage() {
   const [library, setLibrary] = useState<LibraryEntry[] | null>(null);
   const [libraryLoading, setLibraryLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user) return;
-    api
-      .get<LibraryEntry[]>("/library/me")
-      .then(setLibrary)
-      .catch((err: any) => toast.error(err.message))
-      .finally(() => setLibraryLoading(false));
-  }, [user]);
+  const [availableBooks, setAvailableBooks] = useState([]);
+  const {readersBooks, allBooks} = useBooks()
+  
 
+  useEffect(() => {
+    if (!user || !readersBooks) return;
+    setLibrary(readersBooks)
+    setLibraryLoading(false)
+  }, [user,readersBooks]);
+
+    useEffect(()=>{
+    setAvailableBooks(JSON.parse(localStorage.getItem("availableBooks") || "[]"));
+    console.log(JSON.parse(localStorage.getItem("availableBooks")))
+  },[])
+ 
   const initials = (user?.fullname || user?.email || "?")
     .split(" ")
     .map((part) => part[0])
@@ -107,6 +121,46 @@ export default function ProfilePage() {
         </div>
       </div>
     );
+  }
+
+
+
+  const handleAvailableOffline = async (bookId:string,isAvailableOffline:boolean)  => {
+    console.log(bookId, isAvailableOffline)
+    if (!isAvailableOffline) {
+      const bookDetails = {
+        "bookId": `${bookId}-${locale}`,
+        "bookFile": JSON.parse(readersBooks.find((book:LibraryEntry) => book.book_id === bookId).pdf_file_url)["english"]
+      }
+      localStorage.setItem("availableBooks", JSON.stringify([...availableBooks,bookDetails]));
+      setAvailableBooks([...availableBooks,bookDetails]);
+
+      try{
+          const response = await fetch(bookDetails.bookFile);
+      if (!response.ok) throw new Error(`Failed to fetch PDF: ${response.status}`);
+      const blob = await response.blob();
+
+      await putBook({
+        bookId: bookId,
+        type: 'pdf',
+        version:  1, // use a real version field if you have one
+        blob,
+        sizeBytes: blob.size,
+      });
+
+      await putAsset(bookId, 'pdf', blob);
+      }catch (error) {
+        console.error("Error occurred while fetching or saving book:", error);
+      }
+
+
+    } else {
+      const newBooks = availableBooks.filter((book) => book.bookId !== `${bookId}-${locale}`)
+      localStorage.setItem("availableBooks", JSON.stringify(newBooks));
+      setAvailableBooks(newBooks);
+    }
+
+
   }
 
   return (
@@ -201,16 +255,22 @@ export default function ProfilePage() {
               {library.map((entry) => {
                 const pct = entry.percentage_completed ?? 0;
                 const isDone = entry.progress === "done";
-                console.log("ENTRY", entry);
+                const isAvailableOffline = Boolean(availableBooks.filter((book) => book.bookId === `${entry.book_id}-${locale}`).length);
+               
+               
                 return (
                   <li key={entry.reader_book_id}>
+                    <div
+                     className="block rounded-2xl border border-border/60 bg-surface p-5 transition hover:border-primary/60"
+                    >
+
                     <Link
                       to={withLocalePath(`/read/${entry.book_id}`, locale)}
                       // search={{
                       //   page: entry.current_page,
                       //   chapter: entry.current_chapter_index,
                       // }}
-                      className="block rounded-2xl border border-border/60 bg-surface p-5 transition hover:border-primary/60"
+                     
                     >
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                         <div className="flex items-start gap-3">
@@ -266,6 +326,19 @@ export default function ProfilePage() {
                         )}
                       </div>
                     </Link>
+                      <div className="mt-3 flex flex-wrap items-center justify-center h-full gap-2"
+                    
+                        id={entry.book_id}
+                        onClick={() => handleAvailableOffline(entry.book_id, isAvailableOffline)} 
+                      >
+                        {isAvailableOffline? 
+                        <p>Available offline</p>  
+                        :
+                         <p style={{color: isAvailableOffline?"teal":"gray"}}>Make available offline</p>}
+                        
+                        
+                      </div>
+                    </div>
                   </li>
                 );
               })}

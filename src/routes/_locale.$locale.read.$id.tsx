@@ -365,6 +365,7 @@ filter: sepia(${readingSettings?.theme === "Sepia" ? "100%" : "0%"}) brightness(
         .then((res) => res.text())
         .then((data) => setContent(data + styling));
     } else {
+      
       setContent(url)
       setBookFileType("pdf")
     }

@@ -3,6 +3,7 @@ import { useState, useRef, useCallback,useEffect } from 'react'
 import testPdf from "../test.pdf";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
+import {getAsset} from "@/lib/idb"
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -23,6 +24,10 @@ export default function PdfViewer({initialPage = 5,file,book_id}) {
     pageRefs.current = Array(numPages).fill(null);
   }
   console.log("FILE",typeof file)
+  const loadbook = async ()  =>{
+ console.log("PDF",await getAsset(`1789584356180`,'pdf'))
+  }
+  loadbook()
   // Once all page refs exist, jump to the initial page (no smooth
   // animation here — this is a "start here" jump, not a nav click).
   useEffect(() => {
@@ -125,6 +130,7 @@ export default function PdfViewer({initialPage = 5,file,book_id}) {
       saveProgress();
     };
   }, [book_id, user?.id, backendUrl]);
+ 
 
   return (
     <div className="flex flex-col items-center gap-3 p-4">
@@ -189,7 +195,7 @@ export default function PdfViewer({initialPage = 5,file,book_id}) {
         onScroll={handleScroll}
         className="w-full max-h-[92vh] overflow-y-auto rounded-lg border border-border bg-muted/30"
       >
-        <Document file={file} onLoadSuccess={onDocumentLoadSuccess}>
+        <Document file={getAsset(`${book_id}-en`,'pdf')} onLoadSuccess={onDocumentLoadSuccess}>
           <div className="flex flex-col items-center gap-4 p-4">
             {numPages &&
               Array.from({ length: numPages }, (_, idx) => (
