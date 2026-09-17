@@ -37,6 +37,8 @@ function BackButton({ bookId, readerContainer }: { bookId: string, readerContain
     if (key === 'theme') setTheme(value);
   };
 
+  const hasHydrated = useRef(false);
+
   // Pull the latest saved settings into the local controls once they load.
   useEffect(() => {
     if (readingSettings && typeof readingSettings === "object" && "theme" in readingSettings) {
@@ -46,6 +48,7 @@ function BackButton({ bookId, readerContainer }: { bookId: string, readerContain
       setFontFamily(rs.fontFamily || 'serif');
       setTextColor(rs.textColor || '#171717');
       setBgColor(rs.bgColor || '#ffffff');
+      hasHydrated.current = true;
     }
   }, [readingSettings]);
 
@@ -89,7 +92,7 @@ function BackButton({ bookId, readerContainer }: { bookId: string, readerContain
   }
 
   useEffect(()=>{
-    if (isOpen === false && readingSettings)
+    if (isOpen === false && hasHydrated.current && readingSettings && Object.keys(readingSettings).length > 0)
     saveSettings();
 
   },[isOpen]);
@@ -345,7 +348,7 @@ function ReaderInner({ book, pageStoppedAt, book_id, container }: { book: any; p
   </style>`;
 
   useEffect(() => {
-    if (!readingSettings.theme || !book || !book.pdf_file_url) return;
+    if (!book || !book.pdf_file_url) return;
     setMounted(true);
     const url = book.pdf_file_url[lang];
     if (!url.endsWith(".pdf")) {

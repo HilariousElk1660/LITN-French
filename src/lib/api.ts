@@ -64,6 +64,10 @@ export const api = {
   clearSession() {
     localStorage.removeItem("access_token");
     localStorage.removeItem("user");
+    localStorage.removeItem("litn_book_requests");
+    localStorage.removeItem("litn_readers_books");
+    localStorage.removeItem("litn_all_books");
+    localStorage.removeItem("litn_reading_settings");
   },
 
   getToken(): string | null {

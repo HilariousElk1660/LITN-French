@@ -167,11 +167,22 @@ export function BooksProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    if (!user) {
+      setBookRequests([]);
+      setReadersBooks([]);
+      setAllBooks([]);
+      setReadingSettings({});
+      localStorage.removeItem("litn_book_requests");
+      localStorage.removeItem("litn_readers_books");
+      localStorage.removeItem("litn_all_books");
+      localStorage.removeItem("litn_reading_settings");
+      return;
+    }
     fetchBookRequests();
     fetchReadersBooks();
     fetchAllBooks();
     fetchReadingSettings();
-  }, []);
+  }, [user?.user_id]);
 
   return (
     <Ctx.Provider value={{ bookRequests, setBookRequests, readersBooks, setReadersBooks, setAllBooks, allBooks, fetchAllBooks, readingSettings, setReadingSettings }}>
