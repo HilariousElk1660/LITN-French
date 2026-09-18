@@ -10,6 +10,7 @@ import { Book } from "lucide-react";
 import { LocaleLink } from "@/components/locale-link";
 import { useAuth } from "@/hooks/use-auth";
 import { getLocaleFromPath } from "@/lib/i18n";
+import { getAsset, getBook as getIDBBook } from "@/lib/idb";
 
 type BookDivision = {
   title: string;
@@ -38,6 +39,36 @@ export default function BookPage() {
   const [access, setAccess] = useState(false);
   const { id: book_id } = useParams<{ id: string }>();
   const { bookRequests } = useBooks();
+
+  const [isOfflineAvailable, setIsOfflineAvailable] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
+  useEffect(() => {
+    const handleOnlineStatus = () => setIsOffline(!navigator.onLine);
+    window.addEventListener("online", handleOnlineStatus);
+    window.addEventListener("offline", handleOnlineStatus);
+    return () => {
+      window.removeEventListener("online", handleOnlineStatus);
+      window.removeEventListener("offline", handleOnlineStatus);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!book_id) return;
+    const checkOffline = async () => {
+      try {
+        const assetRecord = await getAsset(book_id, "pdf");
+        const bookRecord = await getIDBBook(book_id);
+        const isAvailable = Boolean(
+          (assetRecord && assetRecord.blob) || (bookRecord && bookRecord.blob)
+        );
+        setIsOfflineAvailable(isAvailable);
+      } catch {
+        setIsOfflineAvailable(false);
+      }
+    };
+    checkOffline();
+  }, [book_id]);
 
   const fetchBook = async () => {
     const bookData = await fetch(`${backendUrl}/book/${book_id}`);
@@ -78,6 +109,7 @@ export default function BookPage() {
                 <Link
                   to="/$locale/read/$id"
                   params={{ locale, id: book.book_id! }}
+                  search={isOffline && isOfflineAvailable ? { offline: "true" } : undefined}
                   className="mt-6 flex w-full justify-center rounded-full bg-gradient-teal px-5 py-3 text-sm font-semibold text-primary-foreground shadow-glow"
                 >
                   Read
@@ -121,7 +153,11 @@ export default function BookPage() {
                           <Link
                             to="/$locale/read/$id"
                             params={{ locale, id: book.book_id! }}
-                            search={{ chapter: name.start_page }}
+                            search={
+                              isOffline && isOfflineAvailable
+                                ? { chapter: name.start_page, offline: "true" }
+                                : { chapter: name.start_page }
+                            }
                             className="text-teal-bright hover:underline"
                           >
                             Read

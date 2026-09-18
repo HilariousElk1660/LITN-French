@@ -8,7 +8,8 @@ import { BookCard } from "@/components/book-card";
 import { LocaleLink } from "@/components/locale-link";
 import { genres, type Book } from "@/lib/books";
 import { BookOpen, GraduationCap, ArrowRight, Sparkles, Compass, Clock } from "lucide-react";
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { withLocalePath } from "@/lib/i18n";
 
 export default Home
 
@@ -46,7 +47,19 @@ function Home() {
   });
   const [loadingBooks, setLoadingBooks] = useState(books.length === 0);
   const [error, setError] = useState<string | null>(null);
-  const { locale } = useParams()
+  const { locale } = useParams();
+  const navigate = useNavigate();
+
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  useEffect(() => {
+    const handleOnlineStatus = () => setIsOffline(!navigator.onLine);
+    window.addEventListener("online", handleOnlineStatus);
+    window.addEventListener("offline", handleOnlineStatus);
+    return () => {
+      window.removeEventListener("online", handleOnlineStatus);
+      window.removeEventListener("offline", handleOnlineStatus);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -216,7 +229,23 @@ function Home() {
               <h2 className="font-display text-2xl sm:text-3xl">{translations["common.continueReading"] || 'Continue Reading...'}</h2>
             </div>
           </div>
-
+          {
+            isOffline ?<div className="mb-6 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-6 backdrop-blur shadow-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <p className="font-semibold text-amber-500 text-lg">You are currently offline.</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Your saved books are available in your profile so you can read offline...
+                </p>
+              </div>
+              <LocaleLink
+                to="/profile#user-books"
+                className="inline-flex items-center justify-center rounded-full bg-amber-500 px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-amber-400 shrink-0 shadow"
+              >
+                Go to My Books
+              </LocaleLink>
+            </div>
+          </div> : 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {((readersBooks as LibraryEntry[]) ?? []).length === 0 ? (
                 <div className="col-span-full rounded-2xl border border-dashed border-border/60 p-8 text-center bg-surface/30">
@@ -279,6 +308,8 @@ function Home() {
               })
             )}
           </div>
+          }
+
         </section>
 
 

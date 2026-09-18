@@ -5,12 +5,8 @@ import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw } from 'lucide-rea
 import { useAuth } from '@/hooks/use-auth';
 import {getAsset} from "@/lib/idb"
 
-pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url
-).toString();
-
+// pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 export default function PdfViewer({initialPage = 5,file,book_id}) {
   const isMobile = window.matchMedia("(max-width: 768px)").matches;
@@ -28,7 +24,7 @@ export default function PdfViewer({initialPage = 5,file,book_id}) {
     setNumPages(numPages);
     pageRefs.current = Array(numPages).fill(null);
   }
-  console.log("FILE",typeof file);
+  console.log("FILE",file);
 
   const loadbook = async ()  =>{
     const fileBook = await getAsset(book_id,'pdf')
@@ -37,25 +33,31 @@ export default function PdfViewer({initialPage = 5,file,book_id}) {
   }
   const [fileBook, setFileBook] = useState(null);
   useEffect(() => {
-  let cancelled = false;
-  let url;
+    let cancelled = false;
+    let url: string | null = null;
 
-  const load = async () => {
-    const result = await getAsset(book_id, 'pdf');
-    const blob = result.blob;
-    if (!blob || cancelled) return;
+    if (file) {
+      setFileBook(file);
+      return;
+    }
 
-    url = URL.createObjectURL(blob);
-    setFileBook(url);
-  };
+    const load = async () => {
+      if (!book_id) return;
+      const result = await getAsset(book_id, 'pdf');
+      const blob = result?.blob;
+      if (!blob || cancelled) return;
 
-  load();
+      url = URL.createObjectURL(blob);
+      setFileBook(url);
+    };
 
-  return () => {
-    cancelled = true;
-    if (url) URL.revokeObjectURL(url);
-  };
-}, [book_id]);
+    load();
+
+    return () => {
+      cancelled = true;
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [file, book_id]);
   // Once all page refs exist, jump to the initial page (no smooth
   // animation here — this is a "start here" jump, not a nav click).
   useEffect(() => {
@@ -223,7 +225,7 @@ export default function PdfViewer({initialPage = 5,file,book_id}) {
         onScroll={handleScroll}
         className="w-full max-h-[92vh] overflow-y-auto rounded-lg border border-border bg-muted/30"
       >
-        <Document file={fileBook} onLoadSuccess={onDocumentLoadSuccess}>
+        <Document file={file || fileBook} onLoadSuccess={onDocumentLoadSuccess}>
           <div className="flex flex-col items-center gap-4 p-4">
             {numPages &&
               Array.from({ length: numPages }, (_, idx) => (

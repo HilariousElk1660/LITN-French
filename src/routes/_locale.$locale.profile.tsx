@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Shield, Crown, BookOpen, CheckCircle2, Circle, ToggleRight, ToggleLeft } from "lucide-react";
@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { useBooks } from "@/hooks/use-books";
 import { is } from "date-fns/locale";
 import {putAsset, putBook} from "@/lib/idb"
+import Link from '@/components/route-link'
 
 
 type LibraryEntry = {
@@ -50,7 +51,26 @@ export default function ProfilePage() {
 
   const [availableBooks, setAvailableBooks] = useState([]);
   const {readersBooks, allBooks} = useBooks()
-  
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
+  useEffect(() => {
+    const handleOnlineStatus = () => setIsOffline(!navigator.onLine);
+    window.addEventListener("online", handleOnlineStatus);
+    window.addEventListener("offline", handleOnlineStatus);
+    return () => {
+      window.removeEventListener("online", handleOnlineStatus);
+      window.removeEventListener("offline", handleOnlineStatus);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (location.hash === "#user-books") {
+      setTimeout(() => {
+        const el = document.getElementById("user-books");
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [location]);
 
   useEffect(() => {
     if (!user || !readersBooks) return;
@@ -58,10 +78,11 @@ export default function ProfilePage() {
     setLibraryLoading(false)
   }, [user,readersBooks]);
 
-    useEffect(()=>{
+  useEffect(()=>{
     setAvailableBooks(JSON.parse(localStorage.getItem("availableBooks") || "[]"));
     console.log(JSON.parse(localStorage.getItem("availableBooks")))
   },[])
+  console.log("offline?", isOffline)
  
   const initials = (user?.fullname || user?.email || "?")
     .split(" ")
@@ -163,6 +184,27 @@ export default function ProfilePage() {
 
   }
 
+
+ 
+
+
+  // useEffect(() => {
+  //   if (!book_id) return;
+  //   const checkOffline = async () => {
+  //     try {
+  //       const assetRecord = await getAsset(book_id, "pdf");
+  //       const bookRecord = await getIDBBook(book_id);
+  //       const isAvailable = Boolean(
+  //         (assetRecord && assetRecord.blob) || (bookRecord && bookRecord.blob)
+  //       );
+  //       setIsOfflineAvailable(isAvailable);
+  //     } catch {
+  //       setIsOfflineAvailable(false);
+  //     }
+  //   };
+  //   checkOffline();
+  // }, [book_id]);
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
@@ -242,7 +284,7 @@ export default function ProfilePage() {
           </form>
         </div>
 
-        <div className="mt-12 border-t border-border/60 pt-10">
+        <div id="user-books" className="mt-12 border-t border-border/60 pt-10">
           <h2 className="font-display text-2xl">Reading roadmap.</h2>
           <p className="mt-2 text-muted-foreground">Where you've left off across every book.</p>
 
@@ -261,15 +303,20 @@ export default function ProfilePage() {
                 return (
                   <li key={entry.reader_book_id}>
                     <div
+                     style={{pointerEvents:`${isOffline && isAvailableOffline ? 'all' :!isOffline?"all" :'none'}`, cursor:`${isOffline && isAvailableOffline ? 'pointer' :!isOffline?"pointer" :'default'}`}}
                      className="block rounded-2xl border border-border/60 bg-surface p-5 transition hover:border-primary/60"
                     >
 
                     <Link
                       to={withLocalePath(`/read/${entry.book_id}`, locale)}
-                      // search={{
-                      //   page: entry.current_page,
-                      //   chapter: entry.current_chapter_index,
-                      // }}
+                      // search={isOffline && isAvailableOffline ? { offline: "true" } : undefined}
+                      search={{
+                        page: entry.current_page, 
+                        chapter: entry.current_chapter_index,
+                        offline: isOffline && isAvailableOffline ? "true":"false"
+                     
+                        
+                      }}
                      
                     >
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">

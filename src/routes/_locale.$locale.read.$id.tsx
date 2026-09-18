@@ -1,5 +1,5 @@
 import { useEffect, useState, Suspense, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 // import { getBook, sampleChapter } from "@/lib/books";
 import logo from "@/assets/litn-logo.asset.json";
 import { useAuth } from "@/hooks/use-auth";
@@ -9,8 +9,8 @@ import { ArrowLeft, Type, Sun, Palette } from 'lucide-react';
 import { HTMLViewer } from "@/components/html-viewer";
 import html from "@/assets/html.txt"
 import { useBooks } from "@/hooks/use-books";
-import { read } from "fs";
 import supported_languages from '@/assets/supported_languages.json'
+import { getAsset, getBook as getIDBBook } from "@/lib/idb";
 
 function BackButton({ bookId,readerContainer }: { bookId: string, readerContainer: any, initialStyling: any }) {
   const navigate = useNavigate();
@@ -261,69 +261,160 @@ function AccessGate({ bookId, children }: { bookId: string; children: React.Reac
 }
 
 function Reader() {
-  const [book, setBook] = useState(null);
+  const [book, setBook] = useState<any>(null);
   const [pageStoppedAt, setPageStoppedAt] = useState(0);
-  const { id } = useParams();
+  const { id,locale } = useParams();
   const { user, loading, backendUrl } = useAuth();
   const readerContainer = useRef<any>(null);
+  const location = useLocation();
 
+  const searchParams = new URLSearchParams(location.search);
+  const isOfflineParam = searchParams.get("offline") === "true";
 
+  const [offlineBlobUrl, setOfflineBlobUrl] = useState<string | null>(null);
+  const [isOfflineDisabled, setIsOfflineDisabled] = useState<boolean>(false);
+  console.log("EHHHHHHHH");
+  const {readersBooks} = useBooks()
 
-  
- 
   const fetchBook = async (bookId: string) => {
+    // 1. If offline=true param exists and equals true: load from IndexedDB
+    if (isOfflineParam) {
+      try {
+        const assetRecord = await getAsset(bookId, "pdf");
+        const bookRecord = await getIDBBook(bookId);
+        const blob = assetRecord?.blob || bookRecord?.blob;
+        const lang = (supported_languages as Record<string, string>)[locale || ''] || 'english';
+        if (blob) {
+          const blobUrl = URL.createObjectURL(blob);
+          setOfflineBlobUrl(blobUrl);
+          const url = JSON.parse(readersBooks.find((book: any) => book.book_id === bookId)?.pdf_file_url);
+          setBook({ book_id: bookId, isOffline: true, pdf_file_url: url });
+          setIsOfflineDisabled(false);
+          return;
+        }
+      } catch (err) {
+        console.error("Error loading offline book from IndexedDB:", err);
+      }
+    }
+
+    // 2. If user is offline, attempt IndexedDB fallback or disable block if not available
+    if (!navigator.onLine) {
+      try {
+        const assetRecord = await getAsset(bookId, "pdf");
+        const bookRecord = await getIDBBook(bookId);
+        const blob = assetRecord?.blob || bookRecord?.blob;
+        if (blob) {
+          const blobUrl = URL.createObjectURL(blob);
+          setOfflineBlobUrl(blobUrl);
+          setBook({ book_id: bookId, isOffline: true });
+          setIsOfflineDisabled(false);
+          return;
+        }
+      } catch (err) {
+        console.error("IndexedDB check failed while offline:", err);
+      }
+      setIsOfflineDisabled(true);
+      return;
+    }
+
+    // 3. When online, load pdf_file_url from where it's stored
+    if (isOfflineParam) return
     try {
       const base = backendUrl;
-
-      //getting book
       const res = await fetch(`${base}/read_book/${bookId}`);
       if (!res.ok) {
+        if (!navigator.onLine) {
+          setIsOfflineDisabled(true);
+          return;
+        }
         throw new Error("Failed to fetch book " + res.statusText);
       }
       
       const bookData = await res.json();
       console.log("BOOK DATA", bookData);
-      setBook({...bookData, "pdf_file_url": JSON.parse(bookData.pdf_file_url)});
+      setBook({ ...bookData, "pdf_file_url": typeof bookData.pdf_file_url === "string" ? JSON.parse(bookData.pdf_file_url) : bookData.pdf_file_url });
+      setIsOfflineDisabled(false);
       
-      //getting reading progress
-      const readerId = user?.user_id
-      const res2 = await fetch(`${base}/reading_progress?book_id=${bookId}&reader_id=${readerId}`);
-      if (res2.ok) {
-        const data = await res2.json();
-        // let chapPage = chapter? JSON.parse(bookData.book_divisions).find((book:any) => book.start_page == chapter):0
-        let page = data.current_page !== undefined? Number(data.current_page):1
-        console.log("page",page)
-        setPageStoppedAt(page)
+      const readerId = user?.user_id;
+      if (readerId) {
+        const res2 = await fetch(`${base}/reading_progress?book_id=${bookId}&reader_id=${readerId}`);
+        if (res2.ok) {
+          const data = await res2.json();
+          let page = data.current_page !== undefined ? Number(data.current_page) : 1;
+          setPageStoppedAt(page);
+        }
       }
-
-
     } catch (e) {
       console.error("Error fetching book:", e);
+      if (!navigator.onLine) {
+        setIsOfflineDisabled(true);
+      }
     }
   };
 
   useEffect(() => {
     if (!loading && id) {
       fetchBook(id);
+      console.log("fetched book!")
     }
-  }, [id, loading, user?.user_id, backendUrl]);
+  }, [id, loading, user?.user_id, backendUrl, location.search]);
+
+  if (isOfflineDisabled) {
+    return (
+      <AccessGate bookId={id || ""}>
+        <BackButton bookId={id || ""} readerContainer={readerContainer} />
+        <div className="flex min-h-[80vh] items-center justify-center p-6 text-center">
+          <div className="rounded-2xl border border-destructive/40 bg-destructive/10 p-8 max-w-md shadow-xl backdrop-blur">
+            <h2 className="text-xl font-bold text-destructive mb-2">Book Unavailable Offline</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              You are currently offline and this book is not available offline. Please connect to the internet to download and read.
+            </p>
+            <button
+              disabled
+              className="w-full rounded-full bg-muted py-3 text-sm font-semibold text-muted-foreground cursor-not-allowed opacity-50 shadow-inner"
+            >
+              Book Block Disabled
+            </button>
+          </div>
+        </div>
+      </AccessGate>
+    );
+  }
+
   return (
     <AccessGate bookId={id || ""}>
       <BackButton bookId={id || ""} readerContainer={readerContainer} />
-      <ReaderInner book={book} pageStoppedAt={pageStoppedAt} book_id={id || ""} container={readerContainer} />
-      
+      <ReaderInner
+        book={book}
+        pageStoppedAt={pageStoppedAt}
+        book_id={id || ""}
+        container={readerContainer}
+        offlineBlobUrl={offlineBlobUrl}
+      />
     </AccessGate>
   );
 }
 
-function ReaderInner({ book, pageStoppedAt, book_id, container }: { book: any; pageStoppedAt: number; book_id: string; container: React.RefObject<any> }) {
+function ReaderInner({
+  book,
+  pageStoppedAt,
+  book_id,
+  container,
+  offlineBlobUrl,
+}: {
+  book: any;
+  pageStoppedAt: number;
+  book_id: string;
+  container: React.RefObject<any>;
+  offlineBlobUrl?: string | null;
+}) {
   const { user } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [content, setContent] = useState('');
   const [bookFileType, setBookFileType] = useState('');
-  const {readingSettings} = useBooks();
-  const {locale} = useParams();
-  const lang = supported_languages[locale]
+  const { readingSettings } = useBooks();
+  const { locale } = useParams();
+  const lang = (supported_languages as Record<string, string>)[locale || ''] || 'english';
   const styling = `<style>
   .page{
   border-bottom: 2px solid ${container.current?.style.color || 'teal'};
@@ -336,13 +427,6 @@ function ReaderInner({ book, pageStoppedAt, book_id, container }: { book: any; p
   img{
 filter: sepia(${readingSettings?.theme === "Sepia" ? "100%" : "0%"}) brightness(${readingSettings?.theme === "Dark" ? "60%" : "100%"});
   }
-// .page {
-//   display: grid;
-//   grid-template-columns: 1fr;
-//   justify-items: center; /* Centers child elements horizontally within the grid */
-//   align-items: center;   /* Centers child elements vertically (if container has height) */
-
-// }
 
 [data-page-id="0"] {
   display: grid;
@@ -353,44 +437,65 @@ filter: sepia(${readingSettings?.theme === "Sepia" ? "100%" : "0%"}) brightness(
 }
 
   </style>`;
-
   useEffect(() => {
-    if (!readingSettings.theme || !book) return;
-    console.log(readingSettings)
+    const getBook = async (bookId: string) => {
+      const asset = await getAsset(bookId,"pdf")
+      console.log('sighhhhhhhh',asset)
+      const html = await asset.blob.text();
+      setContent(html)
+      return html
+    }
+    console.log("here??",book)
+    if (!book) return;  
+    let url = book.pdf_file_url[lang]
+    
+
+    if (!readingSettings?.theme || !book) return;
     setMounted(true);
-    const url = book.pdf_file_url[lang];
+
+   
+ 
+    
     if (!url.endsWith(".pdf")) {
       setBookFileType('html');
+      if (offlineBlobUrl) {
+      getBook(book_id)
+     
+      // setBookFileType('pdf');
+      setMounted(true);
+      url=offlineBlobUrl.blob 
+      return;
+      }
+
       fetch(url)
         .then((res) => res.text())
-        .then((data) => setContent(data + styling));
+        .then((data) => setContent(data ));
     } else {
-      
-      setContent(url)
-      setBookFileType("pdf")
+      if (offlineBlobUrl) {
+        url=offlineBlobUrl.blob 
+      }
+        setContent(url);
+        setBookFileType("pdf");
     }
-
-  }, [readingSettings,book]);
+  }, [readingSettings, book, offlineBlobUrl, lang]);
 
   if (!mounted) {
     return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading reader…</div>;
   }
 
-  
-console.log("loaded read page")
   return (
-    
-      bookFileType? bookFileType == "pdf" ? (
-        <div style={{marginTop: "50px"}}>
-          <PdfViewer file={content}  book_id={book.book_id}/>
-        </div> 
+    bookFileType ? (
+      bookFileType === "pdf" ? (
+        <div style={{ marginTop: "50px" }}>
+          <PdfViewer file={content} book_id={book?.book_id || book_id} />
+        </div>
       ) : (
         <div style={{width: "99vw", display: "flex", justifyContent: "center",fontFamily: readingSettings?.fontFamily,fontSize: `${readingSettings?.fontSize}px`, backgroundColor:readingSettings?.bgColor, color:readingSettings?.textColor}}ref={container}>
           <HTMLViewer htmlString={content}/>
         </div>
-      ) : null
-    
-  )
+      )
+    ) : null
+  );
 }
 
 export default Reader;
